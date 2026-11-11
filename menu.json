@@ -14,7 +14,7 @@
         },
         {
           "name": "Monster",
-          "price": 2
+          "price": 2.5
         },
         {
           "name": "Celsius",
@@ -27,8 +27,7 @@
       "items": [
         {
           "name": "Water",
-          "price": 0.5,
-          "hidden": true
+          "price": 0.25
         },
         {
           "name": "Soda",
@@ -36,7 +35,7 @@
         },
         {
           "name": "Capri Sun",
-          "price": 1
+          "price": 0.89
         },
         {
           "name": "Gatorade",
@@ -49,31 +48,27 @@
       "items": [
         {
           "name": "Fruit Snacks",
-          "price": 0.5
+          "price": 0.25
         },
         {
           "name": "Trail Mix",
-          "price": 0.75,
-          "hidden": true
+          "price": 0.75
         },
         {
           "name": "Muffins",
-          "price": 1,
-          "hidden": true
-        },
-        {
-          "name": "Uncrustable",
-          "price": 1,
-          "hidden": true
-        },
-        {
-          "name": "Beef Sticks",
           "price": 1
         },
         {
+          "name": "Uncrustable",
+          "price": 1
+        },
+        {
+          "name": "Beef Sticks",
+          "price": 1.25
+        },
+        {
           "name": "Nutella Go",
-          "price": 1.25,
-          "hidden": true
+          "price": 1.25
         },
         {
           "name": "Beef Jerky",
