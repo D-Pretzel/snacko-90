@@ -44,9 +44,7 @@
        only reaches 3.4:1 against white label text, and this clears 4.5:1. */
     --venmo: #0073D6;
     --venmo-press: #005DB0;
-    --paypal: #FFC439;
-    --paypal-press: #F0B02A;
-    --paypal-ink: #003087;      /* 7.4:1 on the gold */
+    --good: #2E7D5B;
     --shadow: 0 1px 2px rgba(20,22,26,.04), 0 6px 18px rgba(20,22,26,.05);
     --radius: 12px;
   }
@@ -61,6 +59,7 @@
       --rule-2: #292C33;
       --blue-tint: #172436;
       --hit: #2C4A6B;
+      --good: #6BC49B;
       --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.35);
     }
   }
@@ -215,7 +214,7 @@
   }
   /* Author `display: grid` above beats the UA sheet's `[hidden] { display: none }`
      no matter the specificity, so filtered-out rows need this to actually go
-     away. Same reason `.search` and `.pay.alt` each carry one. */
+     away. Same reason `.search` and `.pay` each carry one. */
   .item[hidden] { display: none; }
 
   .name-lead {
@@ -362,16 +361,20 @@
     color: var(--ink);
   }
 
-  .pay-row { display: flex; gap: 10px; }
+  /* Venmo is the main button: it is the only method whose link carries both
+     the amount and the itemized note. Any other method with a username set
+     sits in a row of smaller, equal buttons underneath. With only Venmo set,
+     the bar is a single button, as it always was. */
+  .pay-alt { display: flex; gap: 8px; margin-top: 8px; }
+  .pay-alt:empty, .pay-alt[hidden] { display: none; }
+  /* No Venmo at all: the row becomes the main row, so its buttons take the
+     main button's height and fill. */
+  .pay-alt.only { margin-top: 0; }
 
-  /* The two buttons are peers: same size, same fill weight, same radius. Hue is
-     what tells them apart, not hierarchy - so neither one reads as the option
-     you were supposed to pick. Base is Venmo; .alt swaps in PayPal's colors. */
   .pay {
     flex: 1 1 0; min-width: 0;
     display: flex; align-items: center; justify-content: center; gap: 10px;
-    /* 52px clears the 44px minimum tap target with room to spare, and is what
-       holds the button height up when the padding comes down. */
+    /* 52px clears the 44px minimum tap target with room to spare. */
     min-height: 52px;
     padding: 14px 16px;
     border: none; border-radius: 14px;
@@ -381,42 +384,100 @@
     letter-spacing: .03em;
     white-space: nowrap;
     text-decoration: none; cursor: pointer;
-    transition: background .18s ease, color .18s ease;
+    touch-action: manipulation;
+    transition: background .18s ease, color .18s ease, border-color .18s ease;
   }
-  /* Both already carry their brand color at rest, so hover presses the shade
-     down rather than changing it - the button stays the thing it was. */
   .pay:hover { background: var(--venmo-press); }
-  /* One ring for both, in the page's own ink: it reads against cream, against
-     the dark bar, and against either fill, and keeps the two buttons peers
-     right down to the focus state. */
+  .pay[hidden] { display: none; }
+  /* One ring for every button, in the page's own ink: it reads against cream,
+     against the dark bar, and against any fill. */
   .pay:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
-  .pay.alt { background: var(--paypal); color: var(--paypal-ink); }
-  .pay.alt:hover { background: var(--paypal-press); }
-  /* With no PayPal handle set, Venmo flexes out to the full width on its own. */
-  .pay.alt[hidden] { display: none; }
-
-  /* An empty cart is not a moment to choose between them, so disabled drops the
-     brand color from both. Must stay below .alt - same specificity, and the
-     gray has to win. */
-  .pay.disabled, .pay.alt.disabled {
-    background: var(--rule); color: var(--muted); pointer-events: none;
+  /* Secondary methods are neutral rather than wearing three more brand colors:
+     four saturated slabs in a strip this size read as noise, and none of these
+     can do what the Venmo button does, so none should look like it can. */
+  .pay.sec {
+    min-height: 46px; padding: 10px 8px;
+    background: var(--panel); color: var(--ink);
+    border: 1px solid var(--rule);
+    font-size: 15px; letter-spacing: 0;
+  }
+  .pay.sec:hover { background: var(--panel); border-color: var(--ink); }
+  .pay-alt.only .pay.sec {
+    min-height: 52px; background: var(--ink); color: var(--bg); border-color: var(--ink);
+    font-size: 16px;
   }
 
-  .venmo-logo, .paypal-logo {
+  /* An empty cart is not a moment to choose, so disabled drops every fill.
+     Must stay below the rules above: same specificity, and the gray has to win. */
+  .pay.disabled, .pay.sec.disabled, .pay-alt.only .pay.sec.disabled {
+    background: var(--rule); color: var(--muted); border-color: var(--rule); pointer-events: none;
+  }
+
+  .venmo-logo {
     width: 24px; height: 24px; flex: 0 0 24px;
     display: inline-flex; align-items: center; justify-content: center;
     border-radius: 7px;
-    background: transparent;
+    /* The Venmo mark is a blue tile with a white V, so it needs a white chip
+       to hold it off the blue button underneath. */
+    background: #fff; padding: 2px;
   }
-  .venmo-logo img, .paypal-logo img { width: 100%; height: 100%; display: block; }
-  .pay.disabled .venmo-logo, .pay.disabled .paypal-logo { opacity: .5; }
+  .venmo-logo img { width: 100%; height: 100%; display: block; }
+  .pay.disabled .venmo-logo { opacity: .5; }
 
-  /* The Venmo mark is a blue tile with a white V, so it needs a white chip to
-     hold it off the blue button underneath. The PayPal monogram is navy on
-     transparent and sits straight on the gold, the way PayPal's own button
-     does - a chip there would only look like a sticker. */
-  .venmo-logo { background: #fff; padding: 2px; }
+  /* ---------------- payment hand-off sheet ------------------------------
+     PayPal, Cash App and Zelle cannot take the itemized note through a link
+     (and Zelle has no link at all), so their buttons open this instead: the
+     note is already on the clipboard, and everything needed to finish the
+     payment is on screen with its own Copy button. A native <dialog> gives
+     the focus trap, Esc to close and the inert background for free. */
+  .sheet {
+    width: 100%; max-width: 520px;
+    margin: auto auto 0;            /* pinned to the bottom, like the bar */
+    padding: 20px 18px calc(18px + env(safe-area-inset-bottom));
+    border: 1px solid var(--rule); border-bottom: none;
+    border-radius: 18px 18px 0 0;
+    background: var(--panel); color: var(--ink);
+    box-shadow: 0 -8px 30px rgba(0,0,0,.18);
+  }
+  .sheet::backdrop { background: rgba(10,12,16,.5); }
+  .sheet h2 { margin: 0 0 14px; font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+  .sheet dl { margin: 0; }
+  .srow {
+    display: grid; grid-template-columns: 76px minmax(0, 1fr) auto;
+    align-items: center; gap: 10px;
+    padding: 10px 0; border-top: 1px solid var(--rule-2);
+  }
+  .srow:last-child { border-bottom: 1px solid var(--rule-2); }
+  .srow[hidden] { display: none; }
+  .srow dt {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .srow dd { margin: 0; min-width: 0; overflow-wrap: anywhere; font-size: 15px; }
+  .srow .amt { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 18px; font-weight: 600; }
+  .srow .note { font-size: 14px; line-height: 1.4; }
+  .copy {
+    min-width: 72px; min-height: 44px; padding: 0 12px;
+    border: 1px solid var(--rule); border-radius: 10px;
+    background: var(--bg); color: var(--ink);
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 500;
+    cursor: pointer; touch-action: manipulation;
+  }
+  .copy.done { border-color: var(--good); color: var(--good); }
+  .copy:focus-visible, .sheet-actions > *:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .sheet-help { margin: 14px 0 0; font-size: 14px; line-height: 1.45; color: var(--muted); }
+  .sheet-actions { display: flex; gap: 10px; margin-top: 16px; }
+  .sheet-actions > * {
+    flex: 1 1 0; min-height: 50px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 12px; font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 16px; font-weight: 600; text-decoration: none; cursor: pointer;
+  }
+  .sheet-close { border: 1px solid var(--rule); background: var(--bg); color: var(--ink); }
+  .sheet-go { border: none; background: var(--ink); color: var(--bg); }
+  .sheet-go[hidden] { display: none; }
 
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
@@ -470,24 +531,43 @@
         <span class="grand" id="total">$0.00</span>
       </div>
       <!-- The visible labels are just the brand, since the total sits directly
-           above and both buttons carry their mark. aria-label keeps the full
-           phrase for screen readers. -->
-      <div class="pay-row">
-        <a class="pay alt disabled" id="paypalBtn" href="#" aria-label="Pay with PayPal" hidden>
-          <span class="paypal-logo" aria-hidden="true">
-            <img src="paypal-mark.png" alt="" />
-          </span>
-          <span>PayPal</span>
-        </a>
-        <a class="pay disabled" id="payBtn" href="#" aria-label="Pay with Venmo">
-          <span class="venmo-logo" aria-hidden="true">
-            <img src="venmo-logo.png" alt="" />
-          </span>
-          <span>Venmo</span>
-        </a>
+           above. aria-label keeps the full phrase for screen readers. -->
+      <a class="pay disabled" id="payBtn" href="#" aria-label="Pay with Venmo" hidden>
+        <span class="venmo-logo" aria-hidden="true">
+          <img src="venmo-logo.png" alt="" />
+        </span>
+        <span>Venmo</span>
+      </a>
+      <div class="pay-alt" id="altRow">
+        <button type="button" class="pay sec disabled" data-method="paypal" aria-label="Pay with PayPal" hidden>PayPal</button>
+        <button type="button" class="pay sec disabled" data-method="cashapp" aria-label="Pay with Cash App" hidden>Cash App</button>
+        <button type="button" class="pay sec disabled" data-method="zelle" aria-label="Pay with Zelle" hidden>Zelle</button>
       </div>
     </div>
   </div>
+
+  <dialog class="sheet" id="paySheet" aria-labelledby="sheetTitle">
+    <h2 id="sheetTitle">Pay</h2>
+    <dl>
+      <div class="srow">
+        <dt>Send to</dt><dd id="sheetTo"></dd>
+        <button type="button" class="copy" data-copy="to">Copy</button>
+      </div>
+      <div class="srow">
+        <dt>Amount</dt><dd class="amt" id="sheetAmt"></dd>
+        <button type="button" class="copy" data-copy="amt">Copy</button>
+      </div>
+      <div class="srow">
+        <dt>Note</dt><dd class="note" id="sheetNote"></dd>
+        <button type="button" class="copy" data-copy="note">Copy</button>
+      </div>
+    </dl>
+    <p class="sheet-help" id="sheetHelp"></p>
+    <div class="sheet-actions">
+      <button type="button" class="sheet-close" id="sheetClose">Close</button>
+      <a class="sheet-go" id="sheetGo" href="#" rel="noopener">Open</a>
+    </div>
+  </dialog>
 
 <script>
   const money = n => "$" + n.toFixed(2);
@@ -519,7 +599,9 @@
   const countEl = document.getElementById("count");
   const countLabelEl = document.getElementById("countLabel");
   const payBtn  = document.getElementById("payBtn");
-  const paypalBtn = document.getElementById("paypalBtn");
+  const altRow  = document.getElementById("altRow");
+  const altBtns = {};
+  altRow.querySelectorAll("[data-method]").forEach(b => { altBtns[b.dataset.method] = b; });
 
   const searchWrap   = document.getElementById("searchWrap");
   const searchInput  = document.getElementById("searchInput");
@@ -534,31 +616,15 @@
      re-evaluated on every render rather than decided once. */
   const SEARCH_MIN_ITEMS = 10;
 
-  /* PayPal is off, and this is the only switch that decides it. The button is
-     never drawn and the link is never built, whatever menu.json says.
-
-     Not deleted, because nothing here is broken: in a browser the PayPal.me
-     link works exactly as it always has. It is off because on a phone with the
-     PayPal app installed the app takes the link, keeps the handle, and throws
-     the amount away - leaving the customer on a profile page with an empty
-     form and no idea what to type. The ways around that are written up in the
-     README; each one costs something, and which cost to pay is undecided.
-
-     Turning it back on is this one line plus the matching switch in
-     admin.html. The handle in menu.json is left alone meanwhile, so nothing
-     needs re-entering. */
-  const PAYPAL_ENABLED = false;
-
   let state = [];
+
+  /* Where each method sends money, straight from menu.json. Empty means the
+     stand does not take that method and its button is never drawn. All four
+     are set from admin.html, so a change of snacko needs no code change. */
   let venmoUsername = "";
-  /* PayPal.me handle, without the "@" or any URL around it - the bit after
-     paypal.me/ in your link. It lives in menu.json alongside the Venmo
-     username and is set from admin.html, so it survives a change of snacko
-     without anyone editing this file. Empty hides the PayPal button entirely
-     and leaves Venmo as the only way to pay.
-     PayPal.me prefills the amount but has no field for a note, so the
-     itemized list only ever rides along on Venmo payments. */
-  let paypalHandle = "";
+  let paypalHandle = "";   /* the bit after paypal.me/ */
+  let cashtag = "";        /* without the $ */
+  let zelleTo = "";        /* email or phone number */
   let standName = "";
 
   /* The Venmo app's own link for the current cart, kept alongside payBtn.href
@@ -614,8 +680,10 @@
     document.title = menu.name || "J-Flight Snacko Store";
     const h1 = document.querySelector("h1");
     if (menu.name) h1.textContent = menu.name;
-    venmoUsername = menu.venmoUsername || "";
+    venmoUsername = (menu.venmoUsername || "").trim();
     paypalHandle = (menu.paypalHandle || "").trim();
+    cashtag = (menu.cashtag || "").trim();
+    zelleTo = (menu.zelleRecipient || "").trim();
     standName = menu.name || "";
 
     let anyVisible = false;
@@ -948,35 +1016,25 @@
     countEl.textContent = count;
     countLabelEl.textContent = count === 1 ? "item" : "items";
 
-    paypalBtn.hidden = !PAYPAL_ENABLED || !paypalHandle;
+    /* Which buttons exist depends only on the menu; whether they work
+       depends on the cart. */
+    payBtn.hidden = !venmoUsername;
+    altBtns.paypal.hidden = !paypalHandle;
+    altBtns.cashapp.hidden = !cashtag;
+    altBtns.zelle.hidden = !zelleTo;
+    altRow.hidden = !(paypalHandle || cashtag || zelleTo);
+    altRow.classList.toggle("only", !venmoUsername);
 
-    if (total <= 0) {
-      payBtn.classList.add("disabled");
+    const empty = total <= 0;
+    payBtn.classList.toggle("disabled", empty);
+    Object.values(altBtns).forEach(b => {
+      b.classList.toggle("disabled", empty);
+      b.disabled = empty;
+    });
+    if (empty) {
       payBtn.removeAttribute("href");
       venmoAppHref = "";
-      paypalBtn.classList.add("disabled");
-      paypalBtn.removeAttribute("href");
       return;
-    }
-    payBtn.classList.remove("disabled");
-
-    /* PayPal.me takes the amount as the last path segment and nothing else -
-       no note, no currency argument. With no handle the button is already
-       hidden, so leave it without an href rather than building a link to
-       paypal.me// that goes nowhere.
-
-       In a browser this prefills the amount correctly. In the app it does not,
-       which is why the button is switched off at PAYPAL_ENABLED for now.
-
-       Do not be tempted to add a currency code. paypal.me/handle/5.00USD is
-       valid and works in a browser, but the app treats the suffixed amount as
-       unparseable and drops it entirely, which is worse than no currency. */
-    if (PAYPAL_ENABLED && paypalHandle) {
-      paypalBtn.classList.remove("disabled");
-      paypalBtn.href = `https://paypal.me/${encodeURIComponent(paypalHandle)}/${total.toFixed(2)}`;
-    } else {
-      paypalBtn.classList.add("disabled");
-      paypalBtn.removeAttribute("href");
     }
 
     /* Both Venmo links carry the same three fields and differ only in shape.
@@ -1023,14 +1081,122 @@
     window.location.href = venmoAppHref;
   });
 
-  /* PayPal is switched off for now - see PAYPAL_ENABLED above. The findings
-     that led here are in the README so they do not have to be rediscovered:
-     paypal.me is a universal link, iOS hands the app the whole URL, and the
-     app's own router keeps the handle and throws the amount away. Rewriting
-     the link as paypal.com/paypalme/... changes nothing because the app claims
-     that path too, and there is no PayPal equivalent of venmo:// to aim at.
-     A /cgi-bin/ checkout link does keep the amount, but bills the stand a
-     goods-and-services fee on every sale, which is the open question. */
+  /* ---------------- PayPal, Cash App and Zelle ------------------------
+
+     Venmo is the only one of the four whose link carries the itemized note:
+       - PayPal.me takes an amount in the path and has no note field at all.
+         On a phone the PayPal app also drops that amount (see the README).
+       - Cash App takes an amount in the path; there is no note parameter.
+       - Zelle has no payment link. It lives inside each bank's own app.
+     So these three copy the note to the clipboard on the tap that opens the
+     sheet - the tap is what lets a page write to the clipboard - and the
+     sheet lays out everything needed to finish, each with its own Copy. */
+
+  const sheet      = document.getElementById("paySheet");
+  const sheetGo    = document.getElementById("sheetGo");
+  const sheetClose = document.getElementById("sheetClose");
+  const sheetHelp  = document.getElementById("sheetHelp");
+  let sheetValues = { to: "", amt: "", note: "" };
+
+  const METHODS = {
+    paypal: {
+      title: "Pay with PayPal",
+      to: () => "paypal.me/" + paypalHandle,
+      /* No currency suffix: paypal.me/handle/5.00USD is valid, but the app
+         treats it as unparseable and drops the amount entirely. */
+      href: total => `https://paypal.me/${encodeURIComponent(paypalHandle)}/${total.toFixed(2)}`,
+      go: "Open PayPal",
+      help: (amt, copied) => `${copied ? "The note is copied. Paste" : "Copy the note and paste"} it into PayPal's note field. If the amount is blank when PayPal opens, enter ${amt}.`,
+    },
+    cashapp: {
+      title: "Pay with Cash App",
+      to: () => "$" + cashtag,
+      href: total => `https://cash.app/$${encodeURIComponent(cashtag)}/${total.toFixed(2)}`,
+      go: "Open Cash App",
+      help: (amt, copied) => `${copied ? "The note is copied. Paste" : "Copy the note and paste"} it into the "For" field in Cash App, and check the amount is ${amt}.`,
+    },
+    zelle: {
+      title: "Pay with Zelle",
+      to: () => zelleTo,
+      href: null,
+      help: (amt, copied) => `Open your bank's app, choose Zelle, and send ${amt} to the address above. ${copied ? "The note is copied; paste" : "Copy the note and paste"} it into the memo.`,
+    },
+  };
+
+  /* The async Clipboard API needs a secure context and a recent tap; the
+     textarea route covers older browsers. Returns whether it worked, so the
+     sheet never claims a copy that did not happen. */
+  async function copyText(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.cssText = "position:fixed;top:0;left:0;opacity:0;";
+      document.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch { ok = false; }
+      ta.remove();
+      return ok;
+    }
+  }
+
+  function markCopied(btn, ok) {
+    clearTimeout(btn._t);
+    btn.textContent = ok ? "Copied" : "Copy";
+    btn.classList.toggle("done", ok);
+    if (ok) btn._t = setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("done"); }, 2500);
+  }
+
+  async function openSheet(key) {
+    const m = METHODS[key];
+    const total = state.reduce((s, it) => s + it.qty * it.price, 0);
+    if (!m || total <= 0) return;
+
+    const note = buildNote();
+    sheetValues = { to: m.to(), amt: total.toFixed(2), note };
+    /* Started before anything else so it is still inside the tap. */
+    const copying = copyText(note);
+
+    document.getElementById("sheetTitle").textContent = m.title;
+    document.getElementById("sheetTo").textContent = sheetValues.to;
+    document.getElementById("sheetAmt").textContent = money(total);
+    document.getElementById("sheetNote").textContent = note;
+    sheet.querySelectorAll(".copy").forEach(b => markCopied(b, false));
+
+    if (m.href) {
+      sheetGo.hidden = false;
+      sheetGo.href = m.href(total);
+      sheetGo.textContent = m.go;
+      sheetClose.textContent = "Cancel";
+    } else {
+      sheetGo.hidden = true;
+      sheetGo.removeAttribute("href");
+      sheetClose.textContent = "Done";
+    }
+    sheetHelp.textContent = m.help(money(total), false);
+    if (!sheet.open) sheet.showModal();
+    (m.href ? sheetGo : sheetClose).focus();
+
+    const ok = await copying;
+    sheetHelp.textContent = m.help(money(total), ok);
+    markCopied(sheet.querySelector('[data-copy="note"]'), ok);
+  }
+
+  Object.entries(altBtns).forEach(([key, btn]) => {
+    btn.addEventListener("click", () => openSheet(key));
+  });
+  sheet.querySelectorAll(".copy").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      markCopied(btn, await copyText(sheetValues[btn.dataset.copy] || ""));
+    });
+  });
+  sheetClose.addEventListener("click", () => sheet.close());
+  /* A tap on the dimmed backdrop lands on the dialog element itself. */
+  sheet.addEventListener("click", e => { if (e.target === sheet) sheet.close(); });
 
   /* Reads like a sentence rather than a receipt dump: the "1x" is dropped for
      single items and the last one is joined with "and". */

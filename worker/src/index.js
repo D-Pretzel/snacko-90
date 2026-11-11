@@ -212,23 +212,42 @@ function validateMenu(raw) {
   if (name === "") fail("The stand needs a name.");
   if (name.length > MAX_NAME) fail(`Stand name must be ${MAX_NAME} characters or fewer.`);
 
-  const venmoUsername = str(raw.venmoUsername, "venmoUsername").trim();
-  if (venmoUsername === "") fail("A Venmo username is required.");
+  /* Four payment methods, each optional, at least one required. Every field
+     is optional in the file too, because menus written before it existed do
+     not have it, so missing means empty rather than an error. Each value is
+     interpolated into a payment link or shown to customers, so anything that
+     would make a dead or misdirected link is refused here as well as in the
+     editor. */
+  const venmoUsername = optStr(raw.venmoUsername, "venmoUsername");
   if (venmoUsername.length > MAX_NAME) fail("Venmo username is too long.");
+  if (venmoUsername.startsWith("@")) fail("Venmo username must not start with @.");
+  if (/[\/\s]/.test(venmoUsername)) fail("Venmo username must have no slashes or spaces.");
 
-  /* Optional, and absent from menus written before the field existed, so a
-     missing value is empty rather than an error. Empty hides the PayPal
-     button on the customer page. */
-  let paypalHandle = "";
-  if (raw.paypalHandle !== undefined && raw.paypalHandle !== null) {
-    paypalHandle = str(raw.paypalHandle, "paypalHandle").trim();
-    if (paypalHandle.length > MAX_NAME) fail("PayPal username is too long.");
-    /* The handle is interpolated into a paypal.me path. A slash would let it
-       reach a different path entirely, and whitespace makes a dead link. */
-    if (/[\/\s]/.test(paypalHandle)) {
-      fail("PayPal username must be just the username, with no slashes or spaces.");
+  const paypalHandle = optStr(raw.paypalHandle, "paypalHandle");
+  if (paypalHandle.length > MAX_NAME) fail("PayPal username is too long.");
+  /* Interpolated into a paypal.me path: a slash would reach a different path
+     entirely, and whitespace makes a dead link. */
+  if (/[\/\s]/.test(paypalHandle)) {
+    fail("PayPal username must be just the username, with no slashes or spaces.");
+  }
+  if (paypalHandle.startsWith("@")) fail("PayPal username must not start with @.");
+
+  const cashtag = optStr(raw.cashtag, "cashtag");
+  if (cashtag && !/^[A-Za-z0-9_-]{1,20}$/.test(cashtag)) {
+    fail("Cash App $cashtag must be up to 20 letters, numbers, dashes or underscores, without the $.");
+  }
+
+  const zelleRecipient = optStr(raw.zelleRecipient, "zelleRecipient");
+  if (zelleRecipient) {
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(zelleRecipient);
+    const isPhone = /^1?\d{10}$/.test(zelleRecipient.replace(/[\s().+-]/g, ""));
+    if (zelleRecipient.length > 100 || (!isEmail && !isPhone)) {
+      fail("Zelle must be an email address or a 10-digit US phone number.");
     }
-    if (paypalHandle.startsWith("@")) fail("PayPal username must not start with @.");
+  }
+
+  if (!venmoUsername && !paypalHandle && !cashtag && !zelleRecipient) {
+    fail("At least one payment method is required.");
   }
 
   if (!Array.isArray(raw.categories)) fail("categories must be an array.");
@@ -253,7 +272,7 @@ function validateMenu(raw) {
     return { label, items };
   });
 
-  return { name, venmoUsername, paypalHandle, categories };
+  return { name, venmoUsername, paypalHandle, cashtag, zelleRecipient, categories };
 }
 
 function validateItem(item, catLabel, ii) {
@@ -314,6 +333,12 @@ function isCalendarDate(value) {
 function str(value, field) {
   if (typeof value !== "string") fail(`${field} must be text.`);
   return value;
+}
+
+/* Absent or null reads as empty; anything else must be text. Trimmed. */
+function optStr(value, field) {
+  if (value === undefined || value === null) return "";
+  return str(value, field).trim();
 }
 
 function fail(message) {

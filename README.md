@@ -22,7 +22,7 @@ The snack stand for J Flight ("Jungle Flight") of the 90th Flying Training Squad
 1. A customer taps their phone on the tag stuck to the snack container.
 2. Their phone opens the page, which loads the menu from `menu.json`.
 3. They tap the items they took, and a running total builds itself. On a long menu there is a search box for finding an item by name.
-4. One button hands off to Venmo with the amount and a plain-English itemized note already filled in. (A PayPal button exists in the code but is switched off; see *PayPal is turned off* below.)
+4. They pay. Venmo is the main button and fills in the amount and a plain-English itemized note. PayPal, Cash App and Zelle get a smaller button each when the stand has a username for them; those copy the note for the customer to paste (see *Payment methods* below).
 
 Because the tag only stores the page's URL, you never re-write a tag when prices change. You just change the menu.
 
@@ -38,7 +38,7 @@ You can:
 
 - Add, rename, reorder, and delete categories and items
 - Set prices, and move an item from one category to another
-- Change the Venmo username, so a change of snacko needs no code change
+- Set the Venmo, PayPal, Cash App and Zelle accounts, so a change of snacko needs no code change
 - Add a short description under any item ("12 oz cans")
 - Put an item on sale by a percentage, with an optional end date
 - Hide an item without deleting it, for when you are out of stock
@@ -63,6 +63,8 @@ A sale is stored as a percentage off, never as a second price. The discounted pr
   "name": "Snack-O",
   "venmoUsername": "your-venmo-username",
   "paypalHandle": "YourPayPalName",
+  "cashtag": "YourCashtag",
+  "zelleRecipient": "you@example.com",
   "categories": [
     {
       "label": "Drinks",
@@ -77,8 +79,11 @@ A sale is stored as a percentage off, never as a second price. The discounted pr
 ```
 
 - `name`: what shows in the header and the browser tab.
-- `venmoUsername`: the handle, without the `@`. Required.
-- `paypalHandle`: the part after `paypal.me/` in your link, with no `@` and no slashes. Currently unused: the PayPal button is switched off in code, so this value is kept and round-tripped but never read by the customer page. Leave it as it is and it will be there if PayPal is turned back on.
+- `venmoUsername`: the Venmo handle, without the `@`.
+- `paypalHandle`: the part after `paypal.me/` in your link, with no `@` and no slashes.
+- `cashtag`: the Cash App $cashtag, without the `$`.
+- `zelleRecipient`: the email or US phone number the bank has registered with Zelle.
+- All four payment fields are optional and an empty one hides that button, but at least one must be set. The editor and the Worker both refuse a menu with none.
 - `price`: dollars, at most two decimal places.
 - `description`: optional. Leave it out and the row looks exactly as it always has.
 - `sale`: optional. `percentOff` is a whole number from 1 to 99; `until` is optional and formatted `YYYY-MM-DD`, and the last day counts.
@@ -131,9 +136,9 @@ Add a small "Tap to pay" label near the tag so customers know what it is.
 
 ## Testing before you launch
 
-**The Venmo handle is set** and lives in `menu.json` where the editor can reach it: `Thomas-Calabrese-8`. It needs no code change to alter, so a change of snacko does not need a developer. The PayPal handle is still in the file but nothing reads it while the button is off.
+**Every payment account lives in `menu.json`** where the editor can reach it, so a change of snacko does not need a developer.
 
-Send yourself a real payment of a dollar or two through the button before the tags go out. A handle that does not exist does not throw an error. Venmo opens a page that goes nowhere, or worse, to someone else with a similar handle.
+Send yourself a real payment of a dollar or two through every button before the tags go out. A handle that does not exist does not throw an error. Venmo opens a page that goes nowhere, or worse, to someone else with a similar handle.
 
 Then test on **both an iPhone and an Android** before sticking tags on anything. The browser-to-Venmo handoff behaves a little differently across phones, so confirm that the pay button opens Venmo with the correct amount already filled in, going to the right person. Read the note on the Venmo screen too, not just the amount: the words should be separated by spaces, and any `+` between them means the app link is not being taken and the handoff is re-encoding the note (see *Good to know*).
 
@@ -170,36 +175,24 @@ Because every stand shares that origin, the origin check cannot tell this editor
 
 ---
 
-## PayPal is turned off
+## Payment methods
 
-The PayPal button is hidden on the customer page and its field is hidden in the editor. Venmo is the only way to pay. Nothing about PayPal is broken. This is a deferred decision, not a bug, and the code is intact behind one switch in each file:
+Venmo is the main button because it is the only one of the four whose link carries both the amount and the itemized note. The others appear as a row of smaller buttons under it, one for each method with a username set. With no Venmo username, that row becomes the main row.
 
-| File | Switch |
-| :--- | :--- |
-| `index.html` | `const PAYPAL_ENABLED = false;` |
-| `admin.html` | `const PAYPAL_ENABLED = false;` |
+What each one can and cannot fill in:
 
-Set both to `true` and everything returns. `paypalHandle` is still stored, still validated by the Worker, and still round-tripped by the editor, so nothing has to be re-entered.
+| Method | Link | Amount filled in | Note filled in |
+| :--- | :--- | :--- | :--- |
+| Venmo | `venmo://paycharge…` on a phone, `venmo.com/…` otherwise | Yes | Yes |
+| PayPal | `paypal.me/<handle>/<amount>` | In a browser; the PayPal app drops it | No: PayPal.me has no note field |
+| Cash App | `cash.app/$<cashtag>/<amount>` | Yes | No: there is no note parameter |
+| Zelle | None; Zelle exists only inside each bank's app | No | No |
 
-**Why it is off.** In a browser `paypal.me/handle/5.00` prefills the amount correctly. On a phone with the PayPal app installed it does not: the app opens the recipient's *profile* page with an empty form, and the customer has no idea what to type. The amount is not lost in transit. `paypal.me` is a universal link, so iOS hands the app the entire URL, amount included, and PayPal's own router keeps the handle and discards the rest.
+So PayPal, Cash App and Zelle open a sheet instead of leaving the page. The tap that opens it also copies the itemized note to the clipboard, which only a tap is allowed to do. The sheet shows who to pay, the amount, and the note, each with its own Copy button and a line saying where to paste. PayPal and Cash App then have an **Open PayPal** / **Open Cash App** button; Zelle tells the customer to open their bank's app. The standalone Zelle app was shut down in 2025, so there is no app to link to or send people to the App Store for.
 
-Two things were tried and did not work. Rewriting the link as `paypal.com/paypalme/…` changes nothing, because the app claims that path too. Adding a currency code (`paypal.me/handle/5.00USD`) is a documented, valid form that works in a browser but makes the app drop the amount *entirely*, which is strictly worse. There is no documented PayPal equivalent of `venmo://` to aim at instead.
+**Why PayPal is the free link and not a checkout link.** A PayPal checkout link (`paypal.com/cgi-bin/webscr?cmd=_xclick…`) would carry both the amount and the note, even in the app. It was turned down because it is a goods-and-services payment, which costs 3.49% + $0.49 per sale (more than a 25¢ water), and because PayPal has deprecated that link type. Two other fixes for the dropped amount were tried and failed: `paypal.com/paypalme/…` is claimed by the app just the same, and a currency suffix (`/5.00USD`) makes the app drop the amount entirely.
 
-**The one thing that does work, and what it costs.** A PayPal checkout link keeps the amount, because the app does not claim that path and it opens in the browser:
-
-```
-https://www.paypal.com/cgi-bin/webscr?cmd=_xclick
-  &business=<the PayPal account's email>
-  &item_name=<the itemized note>
-  &amount=<total>&currency_code=USD&no_shipping=1
-```
-
-It would also carry the itemized note, which PayPal.me has no room for. It was not adopted because of what it costs:
-
-- **A fee on every PayPal sale.** A checkout link is a goods-and-services payment, so PayPal takes 3.49% + $0.49, where PayPal.me between two personal accounts is free. On a 25&cent; water the fee is more than the water; on a $1 item it is more than half. PayPal's micropayments rate (4.99% + $0.09) fixes most of that, but you have to apply and it is account-wide and all-or-nothing.
-- **It is deprecated.** PayPal says Payments Standard and the Buy Now button should not be used for new integrations. It works today and may stop without notice, which makes it a poor foundation for a tag glued to a container.
-
-Taking that route also means a new `paypalEmail` field in `menu.json`, the editor, and the Worker's validator, and the Worker would need `wrangler deploy` before the editor is used again. Its validator drops unrecognised fields, so an undeployed Worker would silently erase the setting on the first save.
+**The Worker must know every field.** Its validator rebuilds the menu from fields it recognizes and drops the rest. A Worker older than these fields will silently erase `cashtag` and `zelleRecipient` on the next save, and it will refuse any menu with no Venmo username. After changing the payment fields in code, run `wrangler deploy` from `worker/` before anyone saves from the editor.
 
 ---
 
@@ -207,7 +200,7 @@ Taking that route also means a new `paypalEmail` field in `menu.json`, the edito
 
 | File | Purpose |
 |------|---------|
-| `index.html` | The customer page. Renders the menu, totals, and the Venmo and PayPal handoffs. |
+| `index.html` | The customer page. Renders the menu, totals, and the hand-off to each payment method. |
 | `menu.json` | The menu itself. The only place menu data lives. |
 | `admin.html` | Password-protected menu editor. |
 | `manifest.json` | Makes the editor installable to a phone home screen. |
@@ -219,7 +212,7 @@ Taking that route also means a new `paypalEmail` field in `menu.json`, the edito
 | `favicon-64.png` | Browser-tab icon for both pages. Cropped tighter than the app icons so it still reads at the 16px a tab actually draws. |
 | `icon-192.png`, `icon-512.png` | Home-screen icons for the editor, and the `apple-touch-icon` for both pages. |
 | `venmo-logo.png` | Venmo mark shown on the pay button. |
-| `paypal-mark.png` | PayPal monogram shown on the PayPal button, cropped square from `paypal_logo.png`. |
+| `paypal-mark.png` | PayPal monogram, cropped square from `paypal_logo.png`. Not loaded since the secondary payment buttons went text-only. |
 | `paypal_logo.png` | Original full PayPal lockup. Kept as the source art; the page does not load it. |
 | `snacko-editor-spec.md` | The build specification the editor was written from. |
 | `.gitignore` | Keeps wrangler's local cache, which holds the Cloudflare account id, out of the repository. |

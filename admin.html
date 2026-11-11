@@ -176,6 +176,7 @@
     padding: 18px;
   }
   #loginView .card { max-width: 380px; margin: 0 auto; }
+  .card-title { margin: 0 0 4px; font-size: 17px; font-weight: 700; }
   #loginView p.lede { margin: 0 0 16px; font-size: 15px; color: var(--muted); }
   .pw { display: flex; gap: 8px; }
   .pw input { flex: 1 1 auto; min-width: 0; }
@@ -381,19 +382,38 @@
         <input type="text" id="menuName" maxlength="60" />
         <span class="err" id="menuNameErr"></span>
       </label>
+    </div>
+
+    <!-- Every method is optional on its own; at least one has to be set or
+         nobody can pay. Each one filled in becomes a button on the store. -->
+    <div class="card" style="margin-bottom:14px;">
+      <h2 class="card-title">Payment methods</h2>
+      <p class="hint" style="margin:0 0 14px;">Fill in each one you accept. Every one you fill in gets its own button at checkout. Leave the rest empty.</p>
       <label class="field">
         <span class="field-label">Venmo username</span>
         <input type="text" id="venmoName" autocapitalize="off" autocorrect="off" spellcheck="false" />
-        <span class="err" id="venmoNameErr"></span>
-        <span class="hint">Without the @. Every payment goes to this account.</span>
-      </label>
-      <label class="field" id="paypalField" style="margin-bottom:0;">
-        <span class="field-label">PayPal.me username (optional)</span>
-        <input type="text" id="paypalName" autocapitalize="off" autocorrect="off" spellcheck="false" />
         <!-- Error before hint, so a problem sits against the field it is about
              rather than below the explanatory text. -->
+        <span class="err" id="venmoNameErr"></span>
+        <span class="hint">Without the @. The main checkout button, and the only one that fills in the itemized note for the customer.</span>
+      </label>
+      <label class="field">
+        <span class="field-label">PayPal.me username</span>
+        <input type="text" id="paypalName" autocapitalize="off" autocorrect="off" spellcheck="false" />
         <span class="err" id="paypalNameErr"></span>
-        <span class="hint">The bit after paypal.me/ in your link. Leave this empty to hide the PayPal button and take Venmo only.</span>
+        <span class="hint">The bit after paypal.me/ in your link.</span>
+      </label>
+      <label class="field">
+        <span class="field-label">Cash App $cashtag</span>
+        <input type="text" id="cashtagName" autocapitalize="off" autocorrect="off" spellcheck="false" />
+        <span class="err" id="cashtagNameErr"></span>
+        <span class="hint">Without the $.</span>
+      </label>
+      <label class="field" style="margin-bottom:0;">
+        <span class="field-label">Zelle email or phone</span>
+        <input type="text" id="zelleName" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" />
+        <span class="err" id="zelleNameErr"></span>
+        <span class="hint">Whatever your bank has registered with Zelle. Customers see it so they know who to pay.</span>
       </label>
     </div>
 
@@ -630,14 +650,6 @@ async function loadMenu() {
   show("editor");
 }
 
-/* Mirrors PAYPAL_ENABLED in index.html and must be kept in step with it.
-   False hides the PayPal field here and the PayPal button there. The stored
-   handle is deliberately left untouched — normalize() still reads it and
-   serialize() still writes it — so turning this back on restores the old
-   value with nothing to re-enter. */
-const PAYPAL_ENABLED = false;
-
-if (!PAYPAL_ENABLED) $("paypalField").hidden = true;
 
 function normalize(raw) {
   const src = (raw && typeof raw === "object") ? raw : {};
@@ -646,6 +658,8 @@ function normalize(raw) {
     venmoUsername: typeof src.venmoUsername === "string" ? src.venmoUsername : "",
     /* Optional, and absent from menus written before the field existed. */
     paypalHandle: typeof src.paypalHandle === "string" ? src.paypalHandle : "",
+    cashtag: typeof src.cashtag === "string" ? src.cashtag : "",
+    zelleRecipient: typeof src.zelleRecipient === "string" ? src.zelleRecipient : "",
     categories: (Array.isArray(src.categories) ? src.categories : []).map(cat => ({
       label: (cat && typeof cat.label === "string") ? cat.label : "",
       items: (Array.isArray(cat && cat.items) ? cat.items : []).map(it => ({
@@ -668,6 +682,8 @@ function renderEditor() {
   $("menuName").value = menu.name;
   $("venmoName").value = menu.venmoUsername;
   $("paypalName").value = menu.paypalHandle;
+  $("cashtagName").value = menu.cashtag;
+  $("zelleName").value = menu.zelleRecipient;
 
   const host = $("cats");
   host.replaceChildren();
@@ -1045,6 +1061,16 @@ $("paypalName").addEventListener("input", e => {
   clearFieldError(e.target);
   markDirty();
 });
+$("cashtagName").addEventListener("input", e => {
+  menu.cashtag = e.target.value;
+  clearFieldError(e.target);
+  markDirty();
+});
+$("zelleName").addEventListener("input", e => {
+  menu.zelleRecipient = e.target.value;
+  clearFieldError(e.target);
+  markDirty();
+});
 
 $("addCatBtn").addEventListener("click", () => {
   menu.categories.push({ label: "", items: [] });
@@ -1078,7 +1104,7 @@ function clearAllErrors() {
 
 function flagField(key, message, problems) {
   const field = document.querySelector(`[data-err="${key}"]`) ||
-                (key === "menuName" || key === "venmoName" || key === "paypalName" ? $(key) : null);
+                (["menuName", "venmoName", "paypalName", "cashtagName", "zelleName"].includes(key) ? $(key) : null);
   const box = $("err-" + key) || $(key + "Err");
   if (field) field.classList.add("bad");
   if (box) { box.textContent = message; box.classList.add("show"); }
@@ -1094,29 +1120,44 @@ function validate() {
   if (name === "") flagField("menuName", "The stand needs a name.", problems);
   else if (name.length > MAX_NAME) flagField("menuName", `Keep it to ${MAX_NAME} characters.`, problems);
 
+  /* Each method is optional, but a stand with none of them takes no money.
+     Every check below catches something that would otherwise produce a
+     payment button that silently goes nowhere. The Worker repeats them. */
   const venmo = menu.venmoUsername.trim();
-  if (venmo === "") {
-    flagField("venmoName", "A Venmo username is required, or nobody can pay.", problems);
-  } else if (venmo.startsWith("@")) {
-    flagField("venmoName", "Leave off the @. Venmo links break with it.", problems);
-  } else if (/\s/.test(venmo)) {
-    flagField("venmoName", "A Venmo username can't contain spaces.", problems);
+  const paypal = menu.paypalHandle.trim();
+  const cashtag = menu.cashtag.trim();
+  const zelle = menu.zelleRecipient.trim();
+
+  if (!venmo && !paypal && !cashtag && !zelle) {
+    flagField("venmoName", "Add at least one payment method, or nobody can pay.", problems);
   }
 
-  /* PayPal is optional — empty simply hides the button. When it is filled in
-     though, catch the two things that produce a dead link without any error:
-     pasting the whole paypal.me URL, and adding an "@" the way Venmo uses. */
-  const paypal = menu.paypalHandle.trim();
-  if (PAYPAL_ENABLED && paypal !== "") {
-    if (paypal.length > MAX_NAME) {
-      flagField("paypalName", `Keep it to ${MAX_NAME} characters.`, problems);
-    } else if (paypal.includes("/")) {
-      flagField("paypalName", "Just the username, not the whole link — the part after paypal.me/", problems);
-    } else if (paypal.startsWith("@")) {
-      flagField("paypalName", "Leave off the @.", problems);
-    } else if (/\s/.test(paypal)) {
-      flagField("paypalName", "A PayPal.me username can't contain spaces.", problems);
+  if (venmo) {
+    if (venmo.length > MAX_NAME) flagField("venmoName", `Keep it to ${MAX_NAME} characters.`, problems);
+    else if (venmo.startsWith("@")) flagField("venmoName", "Leave off the @. Venmo links break with it.", problems);
+    else if (/[\s\/]/.test(venmo)) flagField("venmoName", "Just the username, with no spaces or slashes.", problems);
+  }
+
+  if (paypal) {
+    if (paypal.length > MAX_NAME) flagField("paypalName", `Keep it to ${MAX_NAME} characters.`, problems);
+    else if (paypal.includes("/")) flagField("paypalName", "Just the username, not the whole link: the part after paypal.me/", problems);
+    else if (paypal.startsWith("@")) flagField("paypalName", "Leave off the @.", problems);
+    else if (/\s/.test(paypal)) flagField("paypalName", "A PayPal.me username can't contain spaces.", problems);
+  }
+
+  if (cashtag) {
+    if (cashtag.startsWith("$")) flagField("cashtagName", "Leave off the $.", problems);
+    else if (!/^[A-Za-z0-9_-]{1,20}$/.test(cashtag)) {
+      flagField("cashtagName", "A $cashtag is up to 20 letters, numbers, dashes or underscores.", problems);
     }
+  }
+
+  if (zelle) {
+    const digits = zelle.replace(/[\s().+-]/g, "");
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(zelle);
+    const isPhone = /^1?\d{10}$/.test(digits);
+    if (zelle.length > 100) flagField("zelleName", "Keep it to 100 characters.", problems);
+    else if (!isEmail && !isPhone) flagField("zelleName", "Use an email address or a 10-digit US phone number.", problems);
   }
 
   if (menu.categories.length === 0) {
@@ -1191,6 +1232,8 @@ function serialize() {
     name: menu.name.trim(),
     venmoUsername: menu.venmoUsername.trim(),
     paypalHandle: menu.paypalHandle.trim(),
+    cashtag: menu.cashtag.trim(),
+    zelleRecipient: menu.zelleRecipient.trim(),
     categories: menu.categories.map(cat => ({
       label: cat.label.trim(),
       items: cat.items.map(item => {
@@ -1225,12 +1268,15 @@ function describeChanges(before, after) {
   const money = n => "$" + n.toFixed(2);
 
   if (before.name !== after.name) out.push(`renamed stand to ${after.name}`);
-  if (before.venmoUsername !== after.venmoUsername) out.push("changed Venmo username");
-  if (before.paypalHandle !== after.paypalHandle) {
-    if (!after.paypalHandle) out.push("turned off PayPal");
-    else if (!before.paypalHandle) out.push("turned on PayPal");
-    else out.push("changed PayPal username");
-  }
+  /* Menus saved before a field existed have it undefined; treat that as off. */
+  [["venmoUsername", "Venmo"], ["paypalHandle", "PayPal"],
+   ["cashtag", "Cash App"], ["zelleRecipient", "Zelle"]].forEach(([k, label]) => {
+    const was = before[k] || "", now = after[k] || "";
+    if (was === now) return;
+    if (!now) out.push(`turned off ${label}`);
+    else if (!was) out.push(`turned on ${label}`);
+    else out.push(`changed ${label} account`);
+  });
 
   const catsBefore = before.categories.map(c => c.label);
   const catsAfter = after.categories.map(c => c.label);
