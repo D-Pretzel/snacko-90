@@ -1,8 +1,8 @@
-# Snack-O 89 editor Worker
+# Snack-O 90 editor Worker
 
-The Cloudflare Worker that holds the GitHub credential so `admin.html` never has to. The editor sends a password and a menu; this Worker checks the password, re-validates the menu, and commits `menu.json` to `D-Pretzel/snacko-89`.
+The Cloudflare Worker that holds the GitHub credential so `admin.html` never has to. The editor sends a password and a menu; this Worker checks the password, re-validates the menu, and commits `menu.json` to `D-Pretzel/snacko-90`.
 
-Deployed as **`snacko-89`**, serving `https://snacko-89.petzoldavid02.workers.dev`.
+Deployed as **`snacko-90`**, serving `https://snacko-90.petzoldavid02.workers.dev`.
 
 > **This is not the `snacko` Worker.** The separate `snacko` project has its own Worker, its own token, and its own password. The target repository is set in `wrangler.toml` as `GH_REPO` and is never sent by the browser, so a Worker can only ever write to the one repository it was deployed with. That is the safeguard that keeps the two stands apart. A wrong `WORKER_URL` in `admin.html` will silently publish this stand's menu over the other one's.
 
@@ -21,7 +21,7 @@ wrangler login
 
 On GitHub: **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**.
 
-- **Repository access:** Only select repositories → **`D-Pretzel/snacko-89`**. Not `snacko`, and not "all repositories"; this token should be able to touch nothing else.
+- **Repository access:** Only select repositories → **`D-Pretzel/snacko-90`**. Not `snacko`, and not "all repositories"; this token should be able to touch nothing else.
 - **Permissions:** Repository permissions → **Contents: Read and write**. Nothing else is needed.
 - **Expiration:** set one explicitly, and write the date somewhere you will actually see it. When it lapses, saving breaks and the editor cannot tell you why on its own.
 
@@ -58,10 +58,10 @@ That is a name mismatch, not an authentication problem.
 `admin.html` must point at this Worker:
 
 ```js
-const WORKER_URL = "https://snacko-89.petzoldavid02.workers.dev";
+const WORKER_URL = "https://snacko-90.petzoldavid02.workers.dev";
 ```
 
-Then open the live editor, sign in, change something small, and save. The commit should appear at <https://github.com/D-Pretzel/snacko-89/commits/main/menu.json>.
+Then open the live editor, sign in, change something small, and save. The commit should appear at <https://github.com/D-Pretzel/snacko-90/commits/main/menu.json>.
 
 ---
 
@@ -69,10 +69,10 @@ Then open the live editor, sign in, change something small, and save. The commit
 
 | Binding | Type | Value |
 | :--- | :--- | :--- |
-| `GH_TOKEN` | secret | Fine-grained PAT, `D-Pretzel/snacko-89` only, Contents read and write. |
+| `GH_TOKEN` | secret | Fine-grained PAT, `D-Pretzel/snacko-90` only, Contents read and write. |
 | `EDIT_PASSWORD` | secret | Shared password issued to the snacko. |
 | `ALLOWED_ORIGIN` | var | `https://d-pretzel.github.io` |
-| `GH_REPO` | var | `D-Pretzel/snacko-89` |
+| `GH_REPO` | var | `D-Pretzel/snacko-90` |
 | `GH_BRANCH` | var | `main` |
 
 `ALLOWED_ORIGIN` is one origin for every GitHub Pages project on the account, so it cannot distinguish this project from `snacko`. It keeps unrelated sites out; `GH_REPO` and a distinct password are what separate the two stands.

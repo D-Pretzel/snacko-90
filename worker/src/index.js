@@ -1,5 +1,5 @@
 /* =====================================================================
-   Snack-O 89 menu editor Worker.
+   Snack-O 90 menu editor Worker.
 
    Holds the GitHub credential so admin.html never has to. The editor only
    ever sends a password and a menu; this Worker checks the password,
@@ -19,7 +19,7 @@ const FILE_PATH = "menu.json";
 
 /* GitHub rejects requests with no User-Agent. Workers do not set one
    automatically, and the omission surfaces as a confusing 403. */
-const USER_AGENT = "snacko-89-menu-editor";
+const USER_AGENT = "snacko-90-menu-editor";
 
 const MAX_BODY_BYTES = 256 * 1024;
 const MAX_NAME = 60;

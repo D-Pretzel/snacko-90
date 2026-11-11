@@ -1,19 +1,19 @@
-# A-Flight Snacko Store
+# J-Flight Snacko Store
 
-A tap-to-pay honor-system snack stand. Customers tap an NFC tag, pick what they grabbed, and pay through Venmo in a single tap. No Square, no card reader, no monthly fees.
+The snack stand for J Flight ("Jungle Flight") of the 90th Flying Training Squadron, the Boxin' Bears. A tap-to-pay honor-system stand: customers tap an NFC tag, pick what they grabbed, and pay through Venmo in a single tap. No Square, no card reader, no monthly fees.
 
-- **Live page:** https://d-pretzel.github.io/snacko-89/
-- **Menu editor:** https://d-pretzel.github.io/snacko-89/admin.html
+- **Live page:** https://d-pretzel.github.io/snacko-90/
+- **Menu editor:** https://d-pretzel.github.io/snacko-90/admin.html
 
-> **This is not the `snacko` repository.** A separate stand runs the same code out of `D-Pretzel/snacko`, with its own Worker, its own GitHub token, and its own password. The two are kept apart in three places, and all three have to stay right:
+> **This is not the `snacko` or `snacko-89` repository.** Separate stands run the same code out of `D-Pretzel/snacko` and `D-Pretzel/snacko-89` (the 89th's A-Flight), each with its own Worker, its own GitHub token, and its own password. They are kept apart in three places, and all three have to stay right:
 >
-> | | this repo | the other one |
-> | :--- | :--- | :--- |
-> | `WORKER_URL` in `admin.html` | `snacko-89.petzoldavid02.workers.dev` | `snacko.petzoldavid02.workers.dev` |
-> | `GH_REPO` in `worker/wrangler.toml` | `D-Pretzel/snacko-89` | `D-Pretzel/snacko` |
-> | `PASS_KEY` in `admin.html` | `snacko89.editPass` | `snacko.editPass` |
+> | | this repo | `snacko-89` | `snacko` |
+> | :--- | :--- | :--- | :--- |
+> | `WORKER_URL` in `admin.html` | `snacko-90.petzoldavid02.workers.dev` | `snacko-89.petzoldavid02.workers.dev` | `snacko.petzoldavid02.workers.dev` |
+> | `GH_REPO` in `worker/wrangler.toml` | `D-Pretzel/snacko-90` | `D-Pretzel/snacko-89` | `D-Pretzel/snacko` |
+> | `PASS_KEY` in `admin.html` | `snacko90.editPass` | `snacko89.editPass` | `snacko.editPass` |
 >
-> The target repository lives in the Worker and is never sent by the browser, so a Worker can only write to the repository it was deployed with. That is the real safeguard. It also means a wrong `WORKER_URL` fails silently, publishing this stand's menu over the other stand's with no error anywhere. `PASS_KEY` is separate because GitHub Pages serves both projects from one origin and `localStorage` is scoped to the origin rather than the path; a shared key would let signing in to one editor hand the other a password that does not work there.
+> The target repository lives in the Worker and is never sent by the browser, so a Worker can only write to the repository it was deployed with. That is the real safeguard. It also means a wrong `WORKER_URL` fails silently, publishing this stand's menu over another stand's with no error anywhere. `PASS_KEY` is separate because GitHub Pages serves every project from one origin and `localStorage` is scoped to the origin rather than the path; a shared key would let signing in to one editor hand the other a password that does not work there.
 
 ---
 
@@ -32,7 +32,7 @@ The customer page has no server behind it: GitHub Pages hands out `index.html` a
 
 ## Changing the menu
 
-Open **https://d-pretzel.github.io/snacko-89/admin.html**, enter the editor password, and change what you need. There is no GitHub account, no code, and no file to find.
+Open **https://d-pretzel.github.io/snacko-90/admin.html**, enter the editor password, and change what you need. There is no GitHub account, no code, and no file to find.
 
 You can:
 
@@ -90,7 +90,7 @@ Every past version of the menu is in the repository's commit history, so a bad e
 
 ## Hosting
 
-There is no build step. GitHub Pages serves this repository's root from the `main` branch, so anything committed to `main` is live at `https://d-pretzel.github.io/snacko-89/` within about a minute. The setting is under **Settings → Pages**: source **Deploy from a branch**, branch `main`, folder `/ (root)`. Confirm it is switched on for this repository. It is a per-repository setting, and having it on for `snacko` does nothing for `snacko-89`.
+There is no build step. GitHub Pages serves this repository's root from the `main` branch, so anything committed to `main` is live at `https://d-pretzel.github.io/snacko-90/` within about a minute. The setting is under **Settings → Pages**: source **Deploy from a branch**, branch `main`, folder `/ (root)`. Confirm it is switched on for this repository. It is a per-repository setting, and having it on for `snacko` does nothing for `snacko-90`.
 
 `index.html` and `menu.json` must stay in the repository root, since the page fetches `menu.json` as a relative path.
 
@@ -100,7 +100,7 @@ There is no build step. GitHub Pages serves this repository's root from the `mai
 
 Full detail, including first-time setup, lives in [`worker/README.md`](worker/README.md).
 
-The Worker is `snacko-89` on Cloudflare, serving `https://snacko-89.petzoldavid02.workers.dev`, and `admin.html` points at it. It holds two secrets: a GitHub fine-grained token scoped to **this** repository with Contents read and write, and the shared editor password. Give it a different password from the `snacko` stand. The two editors share an origin, so one password across both means whoever can edit either can edit both.
+The Worker is `snacko-90` on Cloudflare, serving `https://snacko-90.petzoldavid02.workers.dev`, and `admin.html` points at it. It holds two secrets: a GitHub fine-grained token scoped to **this** repository with Contents read and write, and the shared editor password. Give it a different password from the `snacko` and `snacko-89` stands. The editors share an origin, so one password across them means whoever can edit one can edit all.
 
 The token never touches the browser. The editor only ever sends the Worker a password and a menu; the Worker checks the password, re-validates the menu against the schema, and makes the commit.
 
@@ -122,7 +122,7 @@ Type it at the prompt rather than passing it as an argument, so it stays out of 
 
 1. Buy blank NTAG213 or NTAG215 stickers. They are inexpensive and widely available.
 2. Install a free app like **NFC Tools** (iOS or Android).
-3. Choose **Write → Add a record → URL**, and enter `https://d-pretzel.github.io/snacko-89/`.
+3. Choose **Write → Add a record → URL**, and enter `https://d-pretzel.github.io/snacko-90/`.
 4. Hold the sticker to your phone to write it, then stick it on the container.
 
 Add a small "Tap to pay" label near the tag so customers know what it is.
@@ -149,7 +149,7 @@ Then open `http://localhost:8000/`.
 
 The **editor** cannot be tested this way. The Worker only accepts requests from `https://d-pretzel.github.io`, so `admin.html` served from localhost is refused. That is the origin check working as intended, not a bug. Test the editor at its live URL, or see [`worker/README.md`](worker/README.md) for temporarily pointing `ALLOWED_ORIGIN` at a local server.
 
-Because both stands share that origin, the origin check cannot tell this editor from the other one. Whether a save lands in the right repository is decided entirely by `WORKER_URL` in `admin.html`, so verify the commit shows up under **`snacko-89`** the first time you save.
+Because every stand shares that origin, the origin check cannot tell this editor from the others. Whether a save lands in the right repository is decided entirely by `WORKER_URL` in `admin.html`, so verify the commit shows up under **`snacko-90`** the first time you save.
 
 ---
 
@@ -160,7 +160,7 @@ Because both stands share that origin, the origin check cannot tell this editor 
 - **Search never touches the cart.** An item you have already added stays in the total and in the Venmo note even while the search is hiding it, and clearing the search brings every quantity back exactly as it was. The totals bar is always the truth about what is being bought, which is why it is worth a glance before paying.
 - **The pay buttons stay disabled** until at least one item is added, so nobody sends a zero payment.
 - **That is why the Venmo button asks "Open in Venmo?" first.** A custom scheme like `venmo://` is unverified, since any app could claim it, so iOS always confirms before leaving Safari. A *universal link*, which is an ordinary `https://` address the app's owner has registered to it, opens silently instead because iOS has already verified the domain. Which of the two fired is worth knowing whenever a hand-off starts misbehaving, and the dialog is how you tell.
-- **The payment note is itemized** and written to read like a sentence, for example `E-Flight SNACKO: 2x Cookie and Soda`, so you can see what each sale was. It is prefixed with the stand name from `menu.json`, drops the `1x` for single items, and is trimmed at Venmo's 280-character limit.
+- **The payment note is itemized** and written to read like a sentence, for example `J-Flight Snacko Store: 2x Cookie and Soda`, so you can see what each sale was. It is prefixed with the stand name from `menu.json`, drops the `1x` for single items, and is trimmed at Venmo's 280-character limit.
 - **Sale prices are what customers are charged.** The total and the Venmo amount both use the discounted price.
 - **Item names are treated as plain text.** An apostrophe, an accent, or a stray `<` in a name shows up literally and cannot break the page.
 - **The Venmo link is built with `encodeURIComponent`, not `URLSearchParams`.** `URLSearchParams` encodes spaces as `+`, and Venmo prints the note exactly as given, plus signs included. If the note ever comes back full of `+`, that is why.
@@ -214,8 +214,8 @@ Taking that route also means a new `paypalEmail` field in `menu.json`, the edito
 | `worker/wrangler.toml` | Worker configuration: name, `GH_REPO`, `ALLOWED_ORIGIN`. Secrets are never in here. |
 | `worker/src/index.js` | The Worker itself. Checks the password, re-validates the menu, commits `menu.json`. |
 | `worker/README.md` | Worker setup, secret rotation, and local testing. |
-| `89th-Patch.jpeg` | Source art for every image below. Only 180×198, so the 512px icon is upscaled and a little soft; drop in a larger copy and regenerate if you get one. |
-| `89th-logo.png` | The 89th FTS patch shown in the header of both pages. Transparent background, so it sits on the page in light and dark mode alike. |
+| `J-Flight-Patch.png` | J Flight "Welcome to the Jungle" patch. Source art for every image below. Only 381×386, so the 512px icon is upscaled slightly; drop in a larger copy and regenerate if you get one. |
+| `jflight-logo.png` | The J Flight patch shown in the header of both pages. White field knocked out to transparent, so it sits on the page in light and dark mode alike. |
 | `favicon-64.png` | Browser-tab icon for both pages. Cropped tighter than the app icons so it still reads at the 16px a tab actually draws. |
 | `icon-192.png`, `icon-512.png` | Home-screen icons for the editor, and the `apple-touch-icon` for both pages. |
 | `venmo-logo.png` | Venmo mark shown on the pay button. |
@@ -225,4 +225,4 @@ Taking that route also means a new `paypalEmail` field in `menu.json`, the edito
 | `.gitignore` | Keeps wrangler's local cache, which holds the Cloudflare account id, out of the repository. |
 | `README.md` | This document. |
 
-The 459th FTS Twin Dragons patch inherited from the other project has been removed; the 89th is now the only emblem on either page. The original file remains in history at `1ecc0e1`.
+The 89th FTS patch inherited from `snacko-89` has been replaced by the J Flight patch, which is now the only emblem on either page. The 89th art remains in history before this commit.
