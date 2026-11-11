@@ -45,6 +45,10 @@
         {
           "name": "Gatorade",
           "price": 1
+        },
+        {
+          "name": "Topo Chico Glass",
+          "price": 1.9
         }
       ]
     },
