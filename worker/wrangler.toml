@@ -15,6 +15,6 @@ ALLOWED_ORIGIN = "https://d-pretzel.github.io"
 GH_REPO = "D-Pretzel/snacko-89"
 GH_BRANCH = "main"
 
-# Secrets, set with `wrangler secret put` — never in this file:
+# Secrets, set with `wrangler secret put` - never in this file:
 #   GH_TOKEN       fine-grained PAT, D-Pretzel/snacko-89 only, Contents: read+write
 #   EDIT_PASSWORD  shared password issued to the snacko

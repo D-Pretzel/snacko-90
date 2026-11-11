@@ -33,7 +33,7 @@ export default {
 
     /* Every response below, including every error, goes through json() or
        text-free helpers that attach these. Dropping CORS on the error path is
-       the classic failure in this design — the browser then reports an opaque
+       the classic failure in this design - the browser then reports an opaque
        network error and hides the real message. */
     const cors = corsHeaders(allowed);
 
@@ -43,7 +43,7 @@ export default {
 
     /* Browsers always send Origin on a cross-origin POST. A missing Origin
        means a non-browser client (curl, a health check), which the password
-       still gates — this check is defence in depth, not the lock. */
+       still gates - this check is defence in depth, not the lock. */
     if (origin && allowed && origin !== allowed) {
       return json({ error: "Origin not allowed." }, 403, cors);
     }
@@ -104,7 +104,7 @@ async function handleSave(body, env, request, cors) {
   clearFailures(client);
 
   /* The client is a page we wrote, which is exactly why it still is not
-     trusted — anyone can post here with the password. */
+     trusted - anyone can post here with the password. */
   let menu;
   try {
     menu = validateMenu(body.menu);
@@ -167,7 +167,7 @@ async function commitFile(env, content, message) {
   let sha = await fetchSha(env);
   let res = await putFile(env, content, message, sha);
 
-  /* 409 means the file moved under us — another save, or a hand edit on
+  /* 409 means the file moved under us - another save, or a hand edit on
      GitHub. Re-read the sha once and try again before giving up. */
   if (res.status === 409) {
     sha = await fetchSha(env);
@@ -189,7 +189,7 @@ function ghError(status, text, phase) {
   /* 401 and 403 from GitHub almost always mean the token expired or was
      revoked. Saying so beats surfacing a bare status the snacko cannot act on. */
   if (status === 401 || status === 403) {
-    const err = new Error("GitHub rejected the credential — the access token has likely expired." + detail);
+    const err = new Error("GitHub rejected the credential; the access token has likely expired." + detail);
     err.status = 502;
     return err;
   }
@@ -303,7 +303,7 @@ function validateItem(item, catLabel, ii) {
   return out;
 }
 
-/* Shape alone is not enough — "2026-02-31" matches the pattern and is not a
+/* Shape alone is not enough - "2026-02-31" matches the pattern and is not a
    day. Round-tripping through Date catches that. */
 function isCalendarDate(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
@@ -402,7 +402,7 @@ async function readJson(request) {
 }
 
 /* A bare btoa() throws on any character outside Latin-1, which an item name
-   will eventually contain. Encode to UTF-8 bytes first, and chunk the walk —
+   will eventually contain. Encode to UTF-8 bytes first, and chunk the walk -
    String.fromCharCode(...bytes) overflows the stack on a large array. */
 function base64Utf8(text) {
   const bytes = new TextEncoder().encode(text);

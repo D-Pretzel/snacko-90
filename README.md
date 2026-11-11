@@ -1,4 +1,4 @@
-# 🍿 A-Flight Snacko Store
+# A-Flight Snacko Store
 
 A tap-to-pay honor-system snack stand. Customers tap an NFC tag, pick what they grabbed, and pay through Venmo in a single tap. No Square, no card reader, no monthly fees.
 
@@ -13,7 +13,7 @@ A tap-to-pay honor-system snack stand. Customers tap an NFC tag, pick what they 
 > | `GH_REPO` in `worker/wrangler.toml` | `D-Pretzel/snacko-89` | `D-Pretzel/snacko` |
 > | `PASS_KEY` in `admin.html` | `snacko89.editPass` | `snacko.editPass` |
 >
-> The target repository lives in the Worker and is never sent by the browser, so a Worker can only write to the repository it was deployed with. That is the real safeguard — but it also means a wrong `WORKER_URL` fails silently, publishing this stand's menu over the other stand's with no error anywhere. `PASS_KEY` is separate because GitHub Pages serves both projects from one origin and `localStorage` is scoped to the origin rather than the path; a shared key would let signing in to one editor hand the other a password that does not work there.
+> The target repository lives in the Worker and is never sent by the browser, so a Worker can only write to the repository it was deployed with. That is the real safeguard. It also means a wrong `WORKER_URL` fails silently, publishing this stand's menu over the other stand's with no error anywhere. `PASS_KEY` is separate because GitHub Pages serves both projects from one origin and `localStorage` is scoped to the origin rather than the path; a shared key would let signing in to one editor hand the other a password that does not work there.
 
 ---
 
@@ -22,11 +22,11 @@ A tap-to-pay honor-system snack stand. Customers tap an NFC tag, pick what they 
 1. A customer taps their phone on the tag stuck to the snack container.
 2. Their phone opens the page, which loads the menu from `menu.json`.
 3. They tap the items they took, and a running total builds itself. On a long menu there is a search box for finding an item by name.
-4. One button hands off to Venmo with the amount and a plain-English itemized note already filled in. (A PayPal button exists in the code but is switched off — see *PayPal is turned off* below.)
+4. One button hands off to Venmo with the amount and a plain-English itemized note already filled in. (A PayPal button exists in the code but is switched off; see *PayPal is turned off* below.)
 
 Because the tag only stores the page's URL, you never re-write a tag when prices change. You just change the menu.
 
-The customer page has no server behind it: GitHub Pages hands out `index.html` and `menu.json`, and the browser does the rest. **Editing** the menu does depend on a small Cloudflare Worker, because something has to hold the GitHub credential. If Cloudflare is having a bad day, the snack stand keeps selling — only editing stops.
+The customer page has no server behind it: GitHub Pages hands out `index.html` and `menu.json`, and the browser does the rest. **Editing** the menu does depend on a small Cloudflare Worker, because something has to hold the GitHub credential. If Cloudflare is unavailable, the stand keeps selling; only editing stops.
 
 ---
 
@@ -44,11 +44,11 @@ You can:
 - Hide an item without deleting it, for when you are out of stock
 - Preview the customer view before you save
 
-Press **Save changes**. The live page catches up within about a minute. If a field is wrong, it is highlighted with the reason and nothing is sent until it is fixed. If a save fails — bad signal, usually — every edit stays on screen, so nothing is lost; press Save again.
+Press **Save changes**. The live page catches up within about a minute. If a field is wrong, it is highlighted with the reason and nothing is sent until it is fixed. If a save fails, usually because of poor signal, every edit stays on screen, so nothing is lost; press Save again.
 
 ### Add to Home Screen
 
-Worth doing on the first visit. The editor ships a `manifest.json` and an app icon, so this produces a real icon and opens without browser chrome, like an app. On iOS use Share → Add to Home Screen; on Android, the browser menu offers Install.
+Do this on the first visit. The editor ships a `manifest.json` and an app icon, so this produces a real icon and opens without browser chrome, like an app. On iOS use Share → Add to Home Screen; on Android, the browser menu offers Install.
 
 ### Sales
 
@@ -76,13 +76,13 @@ A sale is stored as a percentage off, never as a second price. The discounted pr
 }
 ```
 
-- `name` — what shows in the header and the browser tab.
-- `venmoUsername` — the handle, without the `@`. Required.
-- `paypalHandle` — the part after `paypal.me/` in your link, with no `@` and no slashes. Currently unused: the PayPal button is switched off in code, so this value is kept and round-tripped but never read by the customer page. Leave it as it is and it will be there if PayPal is turned back on.
-- `price` — dollars, at most two decimal places.
-- `description` — optional. Leave it out and the row looks exactly as it always has.
-- `sale` — optional. `percentOff` is a whole number from 1 to 99; `until` is optional and formatted `YYYY-MM-DD`, and the last day counts.
-- `hidden` — optional. `true` keeps the item in the file but off the customer page.
+- `name`: what shows in the header and the browser tab.
+- `venmoUsername`: the handle, without the `@`. Required.
+- `paypalHandle`: the part after `paypal.me/` in your link, with no `@` and no slashes. Currently unused: the PayPal button is switched off in code, so this value is kept and round-tripped but never read by the customer page. Leave it as it is and it will be there if PayPal is turned back on.
+- `price`: dollars, at most two decimal places.
+- `description`: optional. Leave it out and the row looks exactly as it always has.
+- `sale`: optional. `percentOff` is a whole number from 1 to 99; `until` is optional and formatted `YYYY-MM-DD`, and the last day counts.
+- `hidden`: optional. `true` keeps the item in the file but off the customer page.
 
 Every past version of the menu is in the repository's commit history, so a bad edit is always one revert away.
 
@@ -90,7 +90,7 @@ Every past version of the menu is in the repository's commit history, so a bad e
 
 ## Hosting
 
-There is no build step. GitHub Pages serves this repository's root from the `main` branch, so anything committed to `main` is live at `https://d-pretzel.github.io/snacko-89/` within about a minute. The setting is under **Settings → Pages**: source **Deploy from a branch**, branch `main`, folder `/ (root)`. Confirm it is switched on for this repository — it is a per-repository setting, and having it on for `snacko` does nothing for `snacko-89`.
+There is no build step. GitHub Pages serves this repository's root from the `main` branch, so anything committed to `main` is live at `https://d-pretzel.github.io/snacko-89/` within about a minute. The setting is under **Settings → Pages**: source **Deploy from a branch**, branch `main`, folder `/ (root)`. Confirm it is switched on for this repository. It is a per-repository setting, and having it on for `snacko` does nothing for `snacko-89`.
 
 `index.html` and `menu.json` must stay in the repository root, since the page fetches `menu.json` as a relative path.
 
@@ -100,7 +100,7 @@ There is no build step. GitHub Pages serves this repository's root from the `mai
 
 Full detail, including first-time setup, lives in [`worker/README.md`](worker/README.md).
 
-The Worker is `snacko-89` on Cloudflare, serving `https://snacko-89.petzoldavid02.workers.dev`, and `admin.html` points at it. It holds two secrets: a GitHub fine-grained token scoped to **this** repository with Contents read and write, and the shared editor password. Give it a different password from the `snacko` stand — the two editors sit on the same origin and one password across both means whoever can edit either can edit both.
+The Worker is `snacko-89` on Cloudflare, serving `https://snacko-89.petzoldavid02.workers.dev`, and `admin.html` points at it. It holds two secrets: a GitHub fine-grained token scoped to **this** repository with Contents read and write, and the shared editor password. Give it a different password from the `snacko` stand. The two editors share an origin, so one password across both means whoever can edit either can edit both.
 
 The token never touches the browser. The editor only ever sends the Worker a password and a menu; the Worker checks the password, re-validates the menu against the schema, and makes the commit.
 
@@ -112,7 +112,7 @@ wrangler secret put EDIT_PASSWORD
 
 Type it at the prompt rather than passing it as an argument, so it stays out of your shell history. Anyone still signed in on the old password gets returned to the login screen the next time they save, with their unsaved edits intact.
 
-**The GitHub token expires.** When it does, saving fails — the Worker now says so in plain words ("GitHub rejected the credential — the access token has likely expired"). Mint a new fine-grained token with the same scope, run `wrangler secret put GH_TOKEN`, and revoke the old one. Keep the expiration date somewhere you will actually see it.
+**The GitHub token expires.** When it does, saving fails and the Worker says so ("GitHub rejected the credential; the access token has likely expired"). Mint a new fine-grained token with the same scope, run `wrangler secret put GH_TOKEN`, and revoke the old one. Keep the expiration date somewhere you will actually see it.
 
 **Changing the Worker's code** means `wrangler deploy` from `worker/`. The `name` in `wrangler.toml` must match the Worker's name on the Cloudflare account exactly; if it does not, `wrangler secret put` fails with `This Worker does not exist on your account. [code: 10007]`, which is a name mismatch and not an authentication problem.
 
@@ -125,7 +125,7 @@ Type it at the prompt rather than passing it as an argument, so it stays out of 
 3. Choose **Write → Add a record → URL**, and enter `https://d-pretzel.github.io/snacko-89/`.
 4. Hold the sticker to your phone to write it, then stick it on the container.
 
-Add a small "Tap to pay 📱" label near the tag so customers know what it is.
+Add a small "Tap to pay" label near the tag so customers know what it is.
 
 ---
 
@@ -133,7 +133,7 @@ Add a small "Tap to pay 📱" label near the tag so customers know what it is.
 
 **The Venmo handle is set** and lives in `menu.json` where the editor can reach it: `Thomas-Calabrese-8`. It needs no code change to alter, so a change of snacko does not need a developer. The PayPal handle is still in the file but nothing reads it while the button is off.
 
-Send yourself a real payment of a dollar or two through the button before the tags go out. A handle that does not exist does not throw an error — Venmo just opens a page that goes nowhere, or worse, to someone else with a similar handle.
+Send yourself a real payment of a dollar or two through the button before the tags go out. A handle that does not exist does not throw an error. Venmo opens a page that goes nowhere, or worse, to someone else with a similar handle.
 
 Then test on **both an iPhone and an Android** before sticking tags on anything. The browser-to-Venmo handoff behaves a little differently across phones, so confirm that the pay button opens Venmo with the correct amount already filled in, going to the right person. Read the note on the Venmo screen too, not just the amount: the words should be separated by spaces, and any `+` between them means the app link is not being taken and the handoff is re-encoding the note (see *Good to know*).
 
@@ -147,7 +147,7 @@ python3 -m http.server 8000
 
 Then open `http://localhost:8000/`.
 
-The **editor** cannot be tested this way. The Worker only accepts requests from `https://d-pretzel.github.io`, so `admin.html` served from localhost is refused — that is the origin check doing its job, not a bug. Test the editor at its live URL, or see [`worker/README.md`](worker/README.md) for temporarily pointing `ALLOWED_ORIGIN` at a local server.
+The **editor** cannot be tested this way. The Worker only accepts requests from `https://d-pretzel.github.io`, so `admin.html` served from localhost is refused. That is the origin check working as intended, not a bug. Test the editor at its live URL, or see [`worker/README.md`](worker/README.md) for temporarily pointing `ALLOWED_ORIGIN` at a local server.
 
 Because both stands share that origin, the origin check cannot tell this editor from the other one. Whether a save lands in the right repository is decided entirely by `WORKER_URL` in `admin.html`, so verify the commit shows up under **`snacko-89`** the first time you save.
 
@@ -156,15 +156,15 @@ Because both stands share that origin, the origin check cannot tell this editor 
 ## Good to know
 
 - **Both pages adapt to light and dark mode** automatically.
-- **The menu has a search box once it reaches 10 items**, and none below that, where scrolling is quicker than reaching for a keyboard. It matches on item name only, ignoring case and accents, and every word you type has to appear somewhere in the name — so "bar protein" finds "Ready Protein Bar". Results filter as you type.
+- **The menu has a search box once it reaches 10 items**, and none below that, where scrolling is quicker than reaching for a keyboard. It matches on item name only, ignoring case and accents, and every word you type has to appear somewhere in the name, so "bar protein" finds "Ready Protein Bar". Results filter as you type.
 - **Search never touches the cart.** An item you have already added stays in the total and in the Venmo note even while the search is hiding it, and clearing the search brings every quantity back exactly as it was. The totals bar is always the truth about what is being bought, which is why it is worth a glance before paying.
 - **The pay buttons stay disabled** until at least one item is added, so nobody sends a zero payment.
-- **That is why the Venmo button asks "Open in Venmo?" first.** A custom scheme like `venmo://` is unverified — any app could claim it — so iOS always confirms before leaving Safari. A *universal link*, which is an ordinary `https://` address the app's owner has registered to it, opens silently instead because iOS has already verified the domain. Which of the two fired is worth knowing whenever a hand-off starts misbehaving, and the dialog is how you tell.
+- **That is why the Venmo button asks "Open in Venmo?" first.** A custom scheme like `venmo://` is unverified, since any app could claim it, so iOS always confirms before leaving Safari. A *universal link*, which is an ordinary `https://` address the app's owner has registered to it, opens silently instead because iOS has already verified the domain. Which of the two fired is worth knowing whenever a hand-off starts misbehaving, and the dialog is how you tell.
 - **The payment note is itemized** and written to read like a sentence, for example `E-Flight SNACKO: 2x Cookie and Soda`, so you can see what each sale was. It is prefixed with the stand name from `menu.json`, drops the `1x` for single items, and is trimmed at Venmo's 280-character limit.
-- **Sale prices are what customers are charged** — the total and the Venmo amount both use the discounted price.
+- **Sale prices are what customers are charged.** The total and the Venmo amount both use the discounted price.
 - **Item names are treated as plain text.** An apostrophe, an accent, or a stray `<` in a name shows up literally and cannot break the page.
-- **The Venmo link is built with `encodeURIComponent`, not `URLSearchParams`.** `URLSearchParams` encodes spaces as `+`, and Venmo prints the note exactly as given — plus signs and all. If the note ever comes back full of `+`, that is why.
-- **On a phone the Venmo button opens the app directly, not `venmo.com`.** Tapping the web link on a phone does not go to Venmo in one hop: it loads Venmo's page, which rebuilds the query as form-encoded data on its way into the app, and form encoding writes a space as `+`. The app then prints the note exactly as it was handed over. That is why the same note read correctly in a browser and arrived full of `+` on a phone — the mangling happened on Venmo's side of the handoff, after this page was done with it. The button now hands the app its own link (`venmo://paycharge?txn=pay&recipients=…`), which skips the rebuild, so the `%20`s survive as spaces.
+- **The Venmo link is built with `encodeURIComponent`, not `URLSearchParams`.** `URLSearchParams` encodes spaces as `+`, and Venmo prints the note exactly as given, plus signs included. If the note ever comes back full of `+`, that is why.
+- **On a phone the Venmo button opens the app directly, not `venmo.com`.** Tapping the web link on a phone does not go to Venmo in one hop: it loads Venmo's page, which rebuilds the query as form-encoded data on its way into the app, and form encoding writes a space as `+`. The app then prints the note exactly as it was handed over. That is why the same note read correctly in a browser and arrived full of `+` on a phone: the mangling happened on Venmo's side of the handoff, after this page was done with it. The button now hands the app its own link (`venmo://paycharge?txn=pay&recipients=…`), which skips the rebuild, so the `%20`s survive as spaces.
 - **The web link is still the button's `href`.** The app link is tried first on a phone and the web link takes over if nothing answers within about a second, so a phone without Venmo installed still gets somewhere useful, and long-press-to-copy still yields a URL that means something. Desktop never tries the app link at all.
 - **Venmo's amount-prefill through links is undocumented** and has changed over the years. It works today, but if it ever breaks, the fix is on this page, not on the physical tags.
 
@@ -172,7 +172,7 @@ Because both stands share that origin, the origin check cannot tell this editor 
 
 ## PayPal is turned off
 
-The PayPal button is hidden on the customer page and its field is hidden in the editor. Venmo is the only way to pay. Nothing about PayPal is broken — this is a parked decision, not a bug, and the code is intact behind one switch in each file:
+The PayPal button is hidden on the customer page and its field is hidden in the editor. Venmo is the only way to pay. Nothing about PayPal is broken. This is a deferred decision, not a bug, and the code is intact behind one switch in each file:
 
 | File | Switch |
 | :--- | :--- |
@@ -181,9 +181,9 @@ The PayPal button is hidden on the customer page and its field is hidden in the 
 
 Set both to `true` and everything returns. `paypalHandle` is still stored, still validated by the Worker, and still round-tripped by the editor, so nothing has to be re-entered.
 
-**Why it is off.** In a browser `paypal.me/handle/5.00` prefills the amount correctly. On a phone with the PayPal app installed it does not: the app opens the recipient's *profile* page with an empty form, and the customer has no idea what to type. The amount is not lost in transit — `paypal.me` is a universal link, so iOS hands the app the entire URL, amount included, and PayPal's own router keeps the handle and discards the rest.
+**Why it is off.** In a browser `paypal.me/handle/5.00` prefills the amount correctly. On a phone with the PayPal app installed it does not: the app opens the recipient's *profile* page with an empty form, and the customer has no idea what to type. The amount is not lost in transit. `paypal.me` is a universal link, so iOS hands the app the entire URL, amount included, and PayPal's own router keeps the handle and discards the rest.
 
-Two things were tried and did not work. Rewriting the link as `paypal.com/paypalme/…` changes nothing, because the app claims that path too. Adding a currency code (`paypal.me/handle/5.00USD`) is a documented, valid form that works in a browser but makes the app drop the amount *entirely* — strictly worse. There is no documented PayPal equivalent of `venmo://` to aim at instead.
+Two things were tried and did not work. Rewriting the link as `paypal.com/paypalme/…` changes nothing, because the app claims that path too. Adding a currency code (`paypal.me/handle/5.00USD`) is a documented, valid form that works in a browser but makes the app drop the amount *entirely*, which is strictly worse. There is no documented PayPal equivalent of `venmo://` to aim at instead.
 
 **The one thing that does work, and what it costs.** A PayPal checkout link keeps the amount, because the app does not claim that path and it opens in the browser:
 
@@ -197,9 +197,9 @@ https://www.paypal.com/cgi-bin/webscr?cmd=_xclick
 It would also carry the itemized note, which PayPal.me has no room for. It was not adopted because of what it costs:
 
 - **A fee on every PayPal sale.** A checkout link is a goods-and-services payment, so PayPal takes 3.49% + $0.49, where PayPal.me between two personal accounts is free. On a 25&cent; water the fee is more than the water; on a $1 item it is more than half. PayPal's micropayments rate (4.99% + $0.09) fixes most of that, but you have to apply and it is account-wide and all-or-nothing.
-- **It is deprecated.** PayPal says Payments Standard and the Buy Now button should not be used for new integrations. It works today and may stop without notice — a poor foundation for a tag glued to a container.
+- **It is deprecated.** PayPal says Payments Standard and the Buy Now button should not be used for new integrations. It works today and may stop without notice, which makes it a poor foundation for a tag glued to a container.
 
-Taking that route also means a new `paypalEmail` field in `menu.json`, the editor, and the Worker's validator, and the Worker would need `wrangler deploy` before the editor is used again — its validator drops unrecognised fields, so an undeployed Worker would silently erase the setting on the first save.
+Taking that route also means a new `paypalEmail` field in `menu.json`, the editor, and the Worker's validator, and the Worker would need `wrangler deploy` before the editor is used again. Its validator drops unrecognised fields, so an undeployed Worker would silently erase the setting on the first save.
 
 ---
 
@@ -218,11 +218,11 @@ Taking that route also means a new `paypalEmail` field in `menu.json`, the edito
 | `89th-logo.png` | The 89th FTS patch shown in the header of both pages. Transparent background, so it sits on the page in light and dark mode alike. |
 | `favicon-64.png` | Browser-tab icon for both pages. Cropped tighter than the app icons so it still reads at the 16px a tab actually draws. |
 | `icon-192.png`, `icon-512.png` | Home-screen icons for the editor, and the `apple-touch-icon` for both pages. |
-
-The 459th FTS Twin Dragons patch that came over from the other project is gone — the 89th is now the only emblem anywhere on either page. The old file is still in history at `8aff04f` if it is ever wanted back.
 | `venmo-logo.png` | Venmo mark shown on the pay button. |
 | `paypal-mark.png` | PayPal monogram shown on the PayPal button, cropped square from `paypal_logo.png`. |
 | `paypal_logo.png` | Original full PayPal lockup. Kept as the source art; the page does not load it. |
 | `snacko-editor-spec.md` | The build specification the editor was written from. |
 | `.gitignore` | Keeps wrangler's local cache, which holds the Cloudflare account id, out of the repository. |
 | `README.md` | This document. |
+
+The 459th FTS Twin Dragons patch inherited from the other project has been removed; the 89th is now the only emblem on either page. The original file remains in history at `1ecc0e1`.

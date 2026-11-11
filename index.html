@@ -27,10 +27,9 @@
     --muted:  #7A7365;
     --rule:   #CFC8B7;
     --rule-2: #E6E1D2;
-    --accent: #D96B4A;         /* warm coral — used for pay + minus hover */
+    --accent: #D96B4A;         /* warm coral - used for pay + minus hover */
     --accent-press: #B7532F;
-    --accent-tint: #FBEAE0;
-    --blue: #3A7BD5;           /* selection blue — active row + plus hover */
+    --blue: #3A7BD5;           /* selection blue - active row + plus hover */
     --blue-tint: #E4EEFB;
     /* Search-hit highlight. Deliberately not --blue-tint: that is tuned to sit
        against --bg for the selected-row fill, and a <mark> sits against
@@ -56,7 +55,6 @@
       --muted:  #8F8877;
       --rule:   #3B3E46;
       --rule-2: #292C33;
-      --accent-tint: #3A2018;
       --blue-tint: #172436;
       --hit: #2C4A6B;
       --shadow: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.35);
@@ -74,7 +72,7 @@
     padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
   }
 
-  /* The bottom padding is a starting guess only — the script measures the bar
+  /* The bottom padding is a starting guess only - the script measures the bar
      and overwrites it, because a fixed number cannot know how tall the bar
      actually is and the last rows end up unreachable behind it when it grows. */
   .wrap { max-width: 520px; margin: 0 auto; padding: 22px 18px 180px; }
@@ -142,7 +140,7 @@
     color: var(--muted);
   }
   /* Collapses the gap when there is nothing to say, without leaving the live
-     region display:none — screen readers announce changes less reliably then. */
+     region display:none - screen readers announce changes less reliably then. */
   .search-status:empty { margin: 0; }
 
   /* Present to assistive tech, absent from the layout. */
@@ -153,7 +151,7 @@
   }
 
   /* Names are normally clipped to one line with an ellipsis, which can hide the
-     very run that matched — "Propel Electrolyte Drink Powder Stick" searched
+     very run that matched - "Propel Electrolyte Drink Powder Stick" searched
      for "powder" would otherwise show no highlight at all. While filtering,
      let them wrap. */
   #menu.searching .name-lead { overflow: visible; }
@@ -190,7 +188,7 @@
   }
   .cat-rule { flex: 1 1 auto; height: 1px; background: var(--rule-2); }
 
-  /* Item rows — soft cards with ledger interior */
+  /* Item rows - soft cards with ledger interior */
   .list { display: flex; flex-direction: column; gap: 8px; }
   .item {
     display: grid;
@@ -239,14 +237,14 @@
     color: var(--ink);
   }
 
-  /* Description — muted second line under the name */
+  /* Description - muted second line under the name */
   .name-block { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
   .desc {
     font-size: 12.5px; color: var(--muted);
     overflow: hidden; text-overflow: ellipsis;
   }
 
-  /* Sale pricing — stacked so the tag never steals width from the item name */
+  /* Sale pricing - stacked so the tag never steals width from the item name */
   .price-block { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
   .price-line { display: flex; align-items: baseline; gap: 7px; }
   .price.was {
@@ -258,13 +256,10 @@
     font-family: 'IBM Plex Mono', ui-monospace, monospace;
     font-size: 10px; font-weight: 500; letter-spacing: .08em;
     color: var(--accent);
-    background: var(--accent-tint);
-    border-radius: 6px;
-    padding: 2px 5px;
     white-space: nowrap;
   }
 
-  /* Stepper — friendlier rounded, but still POS-clean */
+  /* Stepper - friendlier rounded, but still POS-clean */
   .qty { display: flex; align-items: center; gap: 6px; }
   .qty button {
     width: 38px; height: 38px; border-radius: 10px;
@@ -323,9 +318,7 @@
     /* env() is 0 on anything without a home indicator, so the bottom value has
        to stand on its own there rather than relying on the inset. */
     padding: 10px 18px calc(12px + env(safe-area-inset-bottom));
-    background: color-mix(in srgb, var(--bg) 88%, transparent);
-    backdrop-filter: saturate(180%) blur(14px);
-    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    background: var(--bg);
     border-top: 1px solid var(--rule);
   }
   .bar .inner { max-width: 520px; margin: 0 auto; }
@@ -333,7 +326,7 @@
      bar keeps its box and the measured clearance below stays correct. */
   .bar.kb-hidden { visibility: hidden; }
 
-  /* Count and total on one line. The dashed rule stays — it is the ledger
+  /* Count and total on one line. The dashed rule stays - it is the ledger
      language the rest of the page is built on. */
   .totals {
     display: flex; justify-content: space-between; align-items: baseline;
@@ -357,7 +350,7 @@
   .pay-row { display: flex; gap: 10px; }
 
   /* The two buttons are peers: same size, same fill weight, same radius. Hue is
-     what tells them apart, not hierarchy — so neither one reads as the option
+     what tells them apart, not hierarchy - so neither one reads as the option
      you were supposed to pick. Base is Venmo; .alt swaps in PayPal's colors. */
   .pay {
     flex: 1 1 0; min-width: 0;
@@ -376,7 +369,7 @@
     transition: background .18s ease, color .18s ease;
   }
   /* Both already carry their brand color at rest, so hover presses the shade
-     down rather than changing it — the button stays the thing it was. */
+     down rather than changing it - the button stays the thing it was. */
   .pay:hover { background: var(--venmo-press); }
   /* One ring for both, in the page's own ink: it reads against cream, against
      the dark bar, and against either fill, and keeps the two buttons peers
@@ -389,7 +382,7 @@
   .pay.alt[hidden] { display: none; }
 
   /* An empty cart is not a moment to choose between them, so disabled drops the
-     brand color from both. Must stay below .alt — same specificity, and the
+     brand color from both. Must stay below .alt - same specificity, and the
      gray has to win. */
   .pay.disabled, .pay.alt.disabled {
     background: var(--rule); color: var(--muted); pointer-events: none;
@@ -407,7 +400,7 @@
   /* The Venmo mark is a blue tile with a white V, so it needs a white chip to
      hold it off the blue button underneath. The PayPal monogram is navy on
      transparent and sits straight on the gold, the way PayPal's own button
-     does — a chip there would only look like a sticker. */
+     does - a chip there would only look like a sticker. */
   .venmo-logo { background: #fff; padding: 2px; }
 
   @media (prefers-reduced-motion: reduce) {
@@ -532,7 +525,7 @@
      Not deleted, because nothing here is broken: in a browser the PayPal.me
      link works exactly as it always has. It is off because on a phone with the
      PayPal app installed the app takes the link, keeps the handle, and throws
-     the amount away — leaving the customer on a profile page with an empty
+     the amount away - leaving the customer on a profile page with an empty
      form and no idea what to type. The ways around that are written up in the
      README; each one costs something, and which cost to pay is undecided.
 
@@ -543,7 +536,7 @@
 
   let state = [];
   let venmoUsername = "";
-  /* PayPal.me handle, without the "@" or any URL around it — the bit after
+  /* PayPal.me handle, without the "@" or any URL around it - the bit after
      paypal.me/ in your link. It lives in menu.json alongside the Venmo
      username and is set from admin.html, so it survives a change of snacko
      without anyone editing this file. Empty hides the PayPal button entirely
@@ -554,7 +547,7 @@
   let standName = "";
 
   /* The Venmo app's own link for the current cart, kept alongside payBtn.href
-     rather than in it — see the click handler below for why the button still
+     rather than in it - see the click handler below for why the button still
      points at the web link. Empty until there is something to pay for. */
   let venmoAppHref = "";
 
@@ -565,7 +558,7 @@
 
   /* One record per rendered row: { row, section, nameEl, original, folded, map }.
      Rebuilt by render(), read by applyFilter(). Filtering only toggles `hidden`
-     on rows that already exist — it never re-renders, because quantities live
+     on rows that already exist - it never re-renders, because quantities live
      in a closure created by itemRow() and re-rendering would silently reset
      every one of them mid-shop. */
   let searchIndex = [];
@@ -632,7 +625,7 @@
            non-string name used to reach foldWithMap() and throw "s is not
            iterable" straight out of render(), leaving the customer an empty
            page and a misleading connection error. Price is coerced for the
-           same reason — a quoted "1.50" would otherwise throw on toFixed. */
+           same reason - a quoted "1.50" would otherwise throw on toFixed. */
         const item = (typeof raw.name === "string" && Number.isFinite(raw.price))
           ? raw
           : Object.assign({}, raw, {
@@ -732,7 +725,7 @@
 
      Filtering hides rows, it does not rebuild them. Quantities therefore
      survive every keystroke, and an item hidden by the search still counts
-     toward the total and the Venmo note — the totals bar stays the single
+     toward the total and the Venmo note - the totals bar stays the single
      source of truth for what is being bought. Clearing the search brings
      everything back untouched.                                          */
 
@@ -777,7 +770,7 @@
 
   /* For each index of the original name, the bounds of the grapheme cluster it
      belongs to. Highlight ranges are snapped out to these, so a <mark> never
-     lands inside a ZWJ emoji, a flag, or a skin-tone modifier — splitting one
+     lands inside a ZWJ emoji, a flag, or a skin-tone modifier - splitting one
      makes it render as its component parts, and the row visibly jumps. It also
      makes a zero-width range impossible, which a fold that expands one
      character into two units can otherwise produce. */
@@ -803,7 +796,7 @@
     return { startOf, endOf };
   }
 
-  /* Every token must appear somewhere in the name, in any order — "bar protein"
+  /* Every token must appear somewhere in the name, in any order - "bar protein"
      finds "Ready Protein Bar", which a plain substring test would miss.
      Returns the ranges to highlight, or null when the row does not match. */
   function matchRanges(rec, tokens) {
@@ -898,7 +891,7 @@
     else setStatus(shown + " of " + searchIndex.length + " items");
   }
 
-  /* The visible count changes immediately — it is feedback on the keystroke
+  /* The visible count changes immediately - it is feedback on the keystroke
      just made. Only the spoken one waits, because a live region updated per
      character queues one announcement per character, and "monster" would be
      read out seven times. Clearing announces at once, since that follows a
@@ -926,7 +919,7 @@
   searchClear.addEventListener("click", () => {
     searchInput.value = "";
     /* Focus moves before the filter runs, because applyFilter hides this very
-       button — blurring it first would close the on-screen keyboard, which
+       button - blurring it first would close the on-screen keyboard, which
        then bounces the pay bar through a hide and show. */
     searchInput.focus();
     applyFilter();
@@ -952,7 +945,7 @@
     }
     payBtn.classList.remove("disabled");
 
-    /* PayPal.me takes the amount as the last path segment and nothing else —
+    /* PayPal.me takes the amount as the last path segment and nothing else -
        no note, no currency argument. With no handle the button is already
        hidden, so leave it without an href rather than building a link to
        paypal.me// that goes nowhere.
@@ -973,7 +966,7 @@
 
     /* Both Venmo links carry the same three fields and differ only in shape.
        The query is built by hand rather than with URLSearchParams, which
-       encodes spaces as "+" — Venmo shows the note verbatim, plus signs and
+       encodes spaces as "+" - Venmo shows the note verbatim, plus signs and
        all. encodeURIComponent uses %20, which Venmo renders as a space. */
     const user   = encodeURIComponent(venmoUsername);
     const amount = encodeURIComponent(total.toFixed(2));
@@ -989,7 +982,7 @@
      does not go to Venmo directly: it loads Venmo's page, which rebuilds the
      query as form-encoded data on its way into the app, and form encoding
      writes a space as "+". The app then prints the note exactly as handed to
-     it, plus signs and all — which is why the note reads correctly in a browser
+     it, plus signs and all - which is why the note reads correctly in a browser
      and arrives mangled on a phone. Handing the app its own scheme skips that
      rebuild, so the %20s survive as spaces.
 
@@ -1015,7 +1008,7 @@
     window.location.href = venmoAppHref;
   });
 
-  /* PayPal is switched off for now — see PAYPAL_ENABLED above. The findings
+  /* PayPal is switched off for now - see PAYPAL_ENABLED above. The findings
      that led here are in the README so they do not have to be rediscovered:
      paypal.me is a universal link, iOS hands the app the whole URL, and the
      app's own router keeps the handle and throws the amount away. Rewriting
@@ -1060,7 +1053,7 @@
   }
 
   /* The bar is fixed, so the list needs clearance under it or the last rows
-     sit behind the buttons — close enough to look tappable, but the tap lands
+     sit behind the buttons - close enough to look tappable, but the tap lands
      on the bar. The height is not a constant: it changes when the PayPal
      button appears, when the webfont finishes loading, and on rotation. So
      measure the bar and follow it rather than hard-coding a number that was
@@ -1069,7 +1062,7 @@
   const wrapEl = document.querySelector(".wrap");
   let lastBarH = 0;
   function syncBarClearance() {
-    /* Unreachable today — the keyboard hide below uses visibility precisely so
+    /* Unreachable today - the keyboard hide below uses visibility precisely so
        the bar keeps its box and stays measurable. Kept because the day someone
        switches that to display:none, this is what stops the clearance under the
        list collapsing and yanking the page out from under a thumb. */
@@ -1089,7 +1082,7 @@
   syncBarClearance();
 
   /* Focusing the search field opens the on-screen keyboard, which shrinks the
-     *visual* viewport but leaves the layout viewport alone — so a fixed bottom
+     *visual* viewport but leaves the layout viewport alone - so a fixed bottom
      bar stays pinned to the bottom of the layout viewport and can end up drawn
      over the keys. It is taken away while the keyboard is up.
 
@@ -1097,20 +1090,20 @@
      typing, and people do add items mid-search. The stepper still answers
      that: the row turns blue and its own count changes on every tap. The
      total is back the moment the keyboard closes. Worth confirming on a real
-     phone — if the bar turns out to be occluded by the keyboard anyway, this
+     phone - if the bar turns out to be occluded by the keyboard anyway, this
      whole block is doing nothing and can go.
 
      visibility rather than display: the bar keeps its layout box, so
      offsetHeight above stays truthful, the clearance padding does not
      collapse, and the ResizeObserver never fires on the hide.
 
-     Do not add `interactive-widget=resizes-content` to the viewport meta —
+     Do not add `interactive-widget=resizes-content` to the viewport meta -
      it shrinks window.innerHeight in step with visualViewport.height, which
      zeroes the gap this depends on and would quietly disable it on Android. */
   const vv = window.visualViewport;
   if (vv) {
-    /* 150px sits above the other things that shrink the visual viewport — the
-       collapsing URL bar (~60-90px) and iOS's input accessory bar (~44px) —
+    /* 150px sits above the other things that shrink the visual viewport - the
+       collapsing URL bar (~60-90px) and iOS's input accessory bar (~44px) -
        and below the shortest real keyboard (~160px, iPhone landscape). */
     const KEYBOARD_MIN = 150;
     const syncKeyboard = () => {

@@ -1,6 +1,6 @@
 # Snacko Menu Editor: Build Specification
 
-> **Historical document — written for the original `snacko` project, kept for the reasoning behind the design.** Every `D-Pretzel/snacko` and `snacko.petzoldavid02.workers.dev` below refers to that repository, not this one. Do not copy the repository names or the binding table out of here when setting anything up: for this project they are `D-Pretzel/snacko-89` and `snacko-89.petzoldavid02.workers.dev`. [`worker/README.md`](worker/README.md) has the values that actually apply here.
+> **Historical document, written for the original `snacko` project, kept for the reasoning behind the design.** Every `D-Pretzel/snacko` and `snacko.petzoldavid02.workers.dev` below refers to that repository, not this one. Do not copy the repository names or the binding table out of here when setting anything up: for this project they are `D-Pretzel/snacko-89` and `snacko-89.petzoldavid02.workers.dev`. [`worker/README.md`](worker/README.md) has the values that actually apply here.
 
 ## Purpose
 
@@ -243,7 +243,3 @@ Non-functional:
 - The customer page loads and functions with the Worker unreachable.  
 - Both pages remain usable in light and dark mode.  
 - Test the full flow on both an iPhone and an Android device. The existing README already flags that the Venmo handoff behaves differently across platforms, and that warning still applies.
-
-## Suggested opening message for the Claude Code session
-
-> Read `snacko-editor-spec.md` in full, then work through it in order. Start with steps 1 and 2, extracting `menu.json` and refactoring `index.html`, and stop for review before building `admin.html`. Do not commit anything until I have reviewed the customer-facing changes on a local server.  
