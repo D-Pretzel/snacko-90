@@ -49,6 +49,10 @@
         {
           "name": "Topo Chico Glass",
           "price": 1.9
+        },
+        {
+          "name": "Topo Chico Can",
+          "price": 1
         }
       ]
     },
