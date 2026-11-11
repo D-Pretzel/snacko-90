@@ -1,7 +1,9 @@
 {
   "name": "J-Flight Snacko Store",
-  "venmoUsername": "Thomas-Calabrese-8",
-  "paypalHandle": "ThomasCalabrese797",
+  "venmoUsername": "REPLACE-ME-venmo",
+  "paypalHandle": "REPLACEMEpaypal",
+  "cashtag": "REPLACEMEcashapp",
+  "zelleRecipient": "replace-me@example.com",
   "categories": [
     {
       "label": "Energy Drinks",
