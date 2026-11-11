@@ -27,12 +27,15 @@
     --bg:     #F3EFE5;
     --panel:  #FBF8F0;
     --ink:    #1A1C22;
-    --muted:  #7A7365;
+    --muted:  #6B6456;         /* 5.1:1 on --bg; was 4.1:1 */
     --rule:   #CFC8B7;
     --rule-2: #E6E1D2;
     --accent: #D96B4A;
     --accent-press: #B7532F;
     --accent-tint: #FBEAE0;
+    /* --accent is a fill; as text on --accent-tint it only reaches 2.9:1.
+       Errors and destructive labels use this darker step of the same hue. */
+    --danger: #A8432A;
     --blue: #3A7BD5;
     --blue-tint: #E4EEFB;
     --good: #2E7D5B;
@@ -45,7 +48,8 @@
       --bg:     #14161A;
       --panel:  #1D2026;
       --ink:    #EFE9DA;
-      --muted:  #8F8877;
+      --muted:  #9A9382;
+      --danger: #E8866A;
       --rule:   #3B3E46;
       --rule-2: #292C33;
       --accent-tint: #3A2018;
@@ -77,12 +81,9 @@
     border-bottom: 1px solid var(--rule);
   }
   .mark { width: 44px; height: 44px; object-fit: contain; flex: 0 0 44px; }
-  h1 { font-size: 21px; font-weight: 700; letter-spacing: -.015em; margin: 0; line-height: 1.1; }
-  .sub {
-    font-family: 'IBM Plex Mono', ui-monospace, monospace;
-    font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
-    color: var(--muted); margin-top: 4px;
-  }
+  h1 { font-size: 22px; font-weight: 700; letter-spacing: -.015em; margin: 0; line-height: 1.1; }
+  .sub { font-size: 14px; color: var(--muted); margin-top: 3px; }
+  #signOutBtn { white-space: nowrap; flex: 0 0 auto; }
   header .spacer { flex: 1 1 auto; }
 
   /* Buttons */
@@ -104,12 +105,16 @@
     font-weight: 600;
   }
   .btn.primary:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .btn.danger { color: var(--accent); }
-  .btn.danger:hover { border-color: var(--accent); background: var(--accent-tint); }
-  .btn[disabled] { opacity: .5; pointer-events: none; }
-  .btn.small { padding: 7px 11px; font-size: 13px; border-radius: 8px; }
+  .btn.danger { color: var(--danger); }
+  .btn.danger:hover { border-color: var(--danger); background: var(--accent-tint); }
+  .btn[disabled] { opacity: .4; pointer-events: none; }
+  .btn:active:not([disabled]) { transform: scale(.97); }
+  button { touch-action: manipulation; }
+  .btn.small { padding: 9px 13px; font-size: 14px; border-radius: 9px; min-height: 40px; }
+  /* 44px: the reorder and delete controls are tapped on a phone, often while
+     scrolling, and a miss on ✕ is the expensive kind. */
   .btn.icon {
-    width: 34px; height: 34px; padding: 0; border-radius: 9px;
+    width: 44px; height: 44px; padding: 0; border-radius: 10px;
     display: inline-flex; align-items: center; justify-content: center;
     font-size: 15px; line-height: 1;
   }
@@ -125,9 +130,10 @@
   .field-label {
     display: block; margin-bottom: 5px;
     font-family: 'IBM Plex Mono', ui-monospace, monospace;
-    font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+    font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
     color: var(--muted);
   }
+  .hint { display: block; margin-top: 5px; font-size: 13px; color: var(--muted); }
   input[type="text"], input[type="password"], input[type="number"], input[type="date"], select {
     width: 100%;
     padding: 11px 12px;
@@ -140,13 +146,24 @@
     line-height: 1.3;
   }
   input:focus, select:focus { outline: 2px solid var(--blue); outline-offset: 1px; border-color: var(--blue); }
-  input.bad, select.bad { border-color: var(--accent); background: var(--accent-tint); }
+  input.bad, select.bad { border-color: var(--danger); background: var(--accent-tint); }
   .err {
     display: none;
-    margin-top: 5px; font-size: 12.5px; color: var(--accent);
+    margin-top: 5px; font-size: 13px; color: var(--danger);
   }
   .err.show { display: block; }
   input[type="number"] { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+  /* A bare "2.50" box does not say dollars; the prefix does, without making
+     anyone type the sign. */
+  .money { position: relative; display: block; }
+  .money .cur {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 16px;
+    color: var(--muted); pointer-events: none;
+  }
+  .money input { padding-left: 26px; }
+  .pct .cur { left: auto; right: 12px; }
+  .pct input { padding-left: 12px; padding-right: 30px; }
 
   .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
@@ -159,7 +176,10 @@
     padding: 18px;
   }
   #loginView .card { max-width: 380px; margin: 0 auto; }
-  #loginView p.lede { margin: 0 0 16px; font-size: 14px; color: var(--muted); }
+  #loginView p.lede { margin: 0 0 16px; font-size: 15px; color: var(--muted); }
+  .pw { display: flex; gap: 8px; }
+  .pw input { flex: 1 1 auto; min-width: 0; }
+  .pw .btn { flex: 0 0 auto; min-width: 64px; }
 
   /* Category blocks */
   .cat {
@@ -178,16 +198,23 @@
   }
   .cat.collapsed .cat-bar { border-bottom: none; }
   .twist {
-    background: none; border: none; padding: 4px 6px;
-    font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--muted);
+    background: none; border: none; padding: 0;
+    width: 32px; height: 44px; flex: 0 0 32px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: var(--muted);
   }
   .cat-bar input[type="text"] { flex: 1 1 auto; padding: 8px 10px; }
   .cat-count {
     font-family: 'IBM Plex Mono', ui-monospace, monospace;
-    font-size: 11px; color: var(--muted); white-space: nowrap;
+    font-size: 12px; color: var(--muted); white-space: nowrap;
   }
+  /* On a phone the count would squeeze the name field to a sliver. It matters
+     most when the category is rolled up and the items are out of sight. */
+  @media (max-width: 440px) {
+    .cat:not(.collapsed) .cat-count { display: none; }
+  }
+  .cat-bar input[type="text"] { min-width: 0; }
   .cat-body { padding: 12px; }
-  .cat-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .cat-tools { display: flex; gap: 8px; flex-wrap: wrap; justify-content: space-between; margin-top: 4px; }
 
   /* Item blocks */
   .it {
@@ -198,18 +225,30 @@
     background: var(--bg);
   }
   .it.is-hidden { opacity: .62; }
-  .it-top { display: grid; grid-template-columns: 1fr 104px; gap: 8px; align-items: start; }
+  .it-top { display: grid; grid-template-columns: 1fr 112px; gap: 8px; align-items: start; }
   .it-tools {
-    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-    margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--rule-2);
+    display: flex; align-items: center; gap: 4px 12px; flex-wrap: wrap;
+    margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--rule-2);
   }
-  .it-tools .grow { flex: 1 1 auto; }
+  /* Reorder and delete travel together, so a narrow screen wraps them as one
+     group instead of stranding ↑ on one line and ↓ on the next. Delete gets
+     its own gap so it is not one slip away from a reorder. */
+  .it-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+  .it-actions .danger { margin-left: 8px; }
   .toggle {
-    display: inline-flex; align-items: center; gap: 7px;
-    font-size: 13px; color: var(--muted); cursor: pointer;
-    padding: 6px 4px;
+    display: inline-flex; align-items: center; gap: 8px;
+    min-height: 44px; padding: 0 2px;
+    font-size: 15px; color: var(--ink); cursor: pointer;
   }
-  .toggle input { width: 17px; height: 17px; margin: 0; accent-color: var(--blue); }
+  .toggle input { width: 20px; height: 20px; margin: 0; accent-color: var(--blue); }
+  .addlink {
+    display: inline-flex; align-items: center; min-height: 40px;
+    margin-top: 4px; padding: 0 2px;
+    background: none; border: none;
+    font-size: 14px; font-weight: 500; color: var(--blue);
+  }
+  .addlink:hover { text-decoration: underline; text-underline-offset: 3px; }
+  .addlink:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
   .subpanel {
     margin-top: 10px; padding: 10px;
     border-radius: 9px; background: var(--panel);
@@ -221,19 +260,18 @@
     font-family: 'IBM Plex Mono', ui-monospace, monospace;
     font-size: 10px; letter-spacing: .08em;
     padding: 2px 6px; border-radius: 6px;
-    background: var(--accent-tint); color: var(--accent);
+    background: var(--accent-tint); color: var(--danger);
   }
   .move-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
   .move-row select { flex: 1 1 auto; padding: 8px 10px; font-size: 14px; }
   .move-row .field-label { margin: 0; white-space: nowrap; }
+  .move-row select { min-height: 44px; }
 
   /* Sticky action bar */
   .bar {
     position: fixed; left: 0; right: 0; bottom: 0;
     padding: 12px 18px calc(14px + env(safe-area-inset-bottom));
-    background: color-mix(in srgb, var(--bg) 90%, transparent);
-    backdrop-filter: saturate(180%) blur(14px);
-    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    background: var(--bg);
     border-top: 1px solid var(--rule);
   }
   .bar .inner {
@@ -241,7 +279,16 @@
     display: flex; align-items: center; gap: 10px;
   }
   .bar .inner .grow { flex: 1 1 auto; }
-  .bar .btn.primary { padding: 15px 24px; font-size: 16px; }
+  /* Save state lives next to the Save button, where the eye already is, not
+     at the bottom of a long page. */
+  .status {
+    flex: 1 1 auto; min-width: 0; text-align: center;
+    font-size: 13px; line-height: 1.25; color: var(--muted);
+  }
+  .status.dirty { color: var(--ink); font-weight: 500; }
+  .status.saved { color: var(--good); }
+  .bar .btn { white-space: nowrap; flex: 0 0 auto; min-height: 48px; }
+  .bar .btn.primary { padding: 13px 20px; font-size: 16px; }
 
   .note {
     margin: 0 0 12px; padding: 11px 13px;
@@ -249,7 +296,7 @@
     border: 1px solid var(--rule-2); background: var(--panel);
   }
   .note.ok  { color: var(--good);   background: var(--good-tint);   border-color: var(--good); }
-  .note.bad { color: var(--accent); background: var(--accent-tint); border-color: var(--accent); }
+  .note.bad { color: var(--danger); background: var(--accent-tint); border-color: var(--danger); }
 
   .dim { color: var(--muted); font-size: 13px; }
   .stack { display: flex; flex-direction: column; gap: 10px; }
@@ -279,9 +326,8 @@
   .pv-price.was { color: var(--muted); text-decoration: line-through; font-size: 12.5px; }
   .pv-tag {
     font-family: 'IBM Plex Mono', ui-monospace, monospace;
-    font-size: 10px; letter-spacing: .08em;
-    color: var(--accent); background: var(--accent-tint);
-    border-radius: 6px; padding: 2px 5px;
+    font-size: 11px; letter-spacing: .08em;
+    color: var(--danger);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -295,8 +341,8 @@
   <header>
     <img class="mark" src="jflight-logo.png" alt="" />
     <div>
-      <h1>J-Flight Snacko Store Editor</h1>
-      <div class="sub">Menu management</div>
+      <h1>Menu Editor</h1>
+      <div class="sub">J-Flight Snacko Store</div>
     </div>
     <span class="spacer"></span>
     <button class="btn small" id="signOutBtn" hidden>Sign out</button>
@@ -309,10 +355,13 @@
       <form id="loginForm">
         <label class="field">
           <span class="field-label">Password</span>
-          <input type="password" id="passInput" autocomplete="current-password" />
+          <span class="pw">
+            <input type="password" id="passInput" autocomplete="current-password" autocapitalize="off" spellcheck="false" />
+            <button type="button" class="btn" id="showPass" aria-controls="passInput" aria-pressed="false">Show</button>
+          </span>
         </label>
         <div class="err" id="loginErr"></div>
-        <button class="btn primary" id="loginBtn" type="submit" style="width:100%;margin-top:6px;">Unlock</button>
+        <button class="btn primary" id="loginBtn" type="submit" style="width:100%;margin-top:6px;">Sign in</button>
       </form>
     </div>
   </section>
@@ -333,9 +382,10 @@
         <span class="err" id="menuNameErr"></span>
       </label>
       <label class="field">
-        <span class="field-label">Venmo username (no @)</span>
+        <span class="field-label">Venmo username</span>
         <input type="text" id="venmoName" autocapitalize="off" autocorrect="off" spellcheck="false" />
         <span class="err" id="venmoNameErr"></span>
+        <span class="hint">Without the @. Every payment goes to this account.</span>
       </label>
       <label class="field" id="paypalField" style="margin-bottom:0;">
         <span class="field-label">PayPal.me username (optional)</span>
@@ -343,7 +393,7 @@
         <!-- Error before hint, so a problem sits against the field it is about
              rather than below the explanatory text. -->
         <span class="err" id="paypalNameErr"></span>
-        <span class="dim" style="font-size:12px;">The bit after paypal.me/ in your link. Leave this empty to hide the PayPal button and take Venmo only.</span>
+        <span class="hint">The bit after paypal.me/ in your link. Leave this empty to hide the PayPal button and take Venmo only.</span>
       </label>
     </div>
 
@@ -353,7 +403,6 @@
 
     <div class="foot">
       <a class="linky" id="historyLink" href="https://github.com/D-Pretzel/snacko-90/commits/main/menu.json" target="_blank" rel="noopener">See past versions</a>
-      <span class="dim" id="unsaved"></span>
     </div>
   </section>
 
@@ -368,7 +417,7 @@
 <div class="bar" id="actionBar" hidden>
   <div class="inner">
     <button class="btn" id="previewBtn">Preview</button>
-    <span class="grow"></span>
+    <span class="status" id="unsaved" role="status"></span>
     <button class="btn primary" id="saveBtn">Save changes</button>
   </div>
 </div>
@@ -439,13 +488,18 @@ const collapsed = new Set();   // category indexes the user rolled up
 const openDesc = new Set();    // item keys whose description field is showing
 let itemSeq = 0;
 
+function setStatus(kind, text) {
+  const s = $("unsaved");
+  s.className = "status" + (kind ? " " + kind : "");
+  s.textContent = text;
+}
 function markDirty() {
   dirty = true;
-  $("unsaved").textContent = "Unsaved changes";
+  setStatus("dirty", "Unsaved changes");
 }
 function markClean() {
   dirty = false;
-  $("unsaved").textContent = "";
+  setStatus("", "No changes yet");
 }
 
 window.addEventListener("beforeunload", e => {
@@ -524,8 +578,19 @@ $("loginForm").addEventListener("submit", async e => {
     errEl.classList.add("show");
   } finally {
     btn.disabled = false;
-    btn.textContent = "Unlock";
+    btn.textContent = "Sign in";
   }
+});
+
+/* Typing a shared password on a phone keyboard is where most failed sign-ins
+   come from; letting people see what they typed fixes that. */
+$("showPass").addEventListener("click", e => {
+  const input = $("passInput");
+  const showing = input.type === "text";
+  input.type = showing ? "password" : "text";
+  e.currentTarget.textContent = showing ? "Show" : "Hide";
+  e.currentTarget.setAttribute("aria-pressed", String(!showing));
+  input.focus();
 });
 
 /* `discard` is true only when the user chose to sign out. When the Worker
@@ -735,7 +800,11 @@ function itemBlock(item, ci, ii) {
     clearFieldError(price);
     markDirty();
   });
-  priceWrap.append(priceLbl, price, errSpan("price-" + item._key));
+  const priceBox = el("span", "money");
+  const cur = el("span", "cur", "$");
+  cur.setAttribute("aria-hidden", "true");
+  priceBox.append(cur, price);
+  priceWrap.append(priceLbl, priceBox, errSpan("price-" + item._key));
   top.appendChild(priceWrap);
 
   box.appendChild(top);
@@ -755,6 +824,18 @@ function itemBlock(item, ci, ii) {
     desc.addEventListener("input", () => { item.description = desc.value; clearFieldError(desc); markDirty(); });
     wrap.append(lbl, desc, errSpan("desc-" + item._key));
     box.appendChild(wrap);
+  }
+
+  if (!descOpen) {
+    const addDesc = el("button", "addlink", "+ Add description");
+    addDesc.type = "button";
+    addDesc.addEventListener("click", () => {
+      openDesc.add(item._key);
+      renderEditor();
+      const field = document.querySelector(`[data-err="desc-${item._key}"]`);
+      if (field) field.focus();
+    });
+    box.appendChild(addDesc);
   }
 
   /* Sale panel */
@@ -778,7 +859,7 @@ function itemBlock(item, ci, ii) {
     const grid = el("div", "row-2");
 
     const pctWrap = el("div");
-    pctWrap.appendChild(el("span", "field-label", "% off"));
+    pctWrap.appendChild(el("span", "field-label", "Percent off"));
     const pct = el("input");
     pct.type = "number";
     pct.step = "1";
@@ -793,10 +874,14 @@ function itemBlock(item, ci, ii) {
       clearFieldError(pct);
       markDirty();
     });
-    pctWrap.append(pct, errSpan("pct-" + item._key));
+    const pctBox = el("span", "money pct");
+  const pctSign = el("span", "cur", "%");
+  pctSign.setAttribute("aria-hidden", "true");
+  pctBox.append(pctSign, pct);
+  pctWrap.append(pctBox, errSpan("pct-" + item._key));
 
     const untilWrap = el("div");
-    untilWrap.appendChild(el("span", "field-label", "Ends after (optional)"));
+    untilWrap.appendChild(el("span", "field-label", "Last day (optional)"));
     const until = el("input");
     until.type = "date";
     until.value = item.sale.until || "";
@@ -813,10 +898,12 @@ function itemBlock(item, ci, ii) {
   /* Move between categories */
   if (menu.categories.length > 1) {
     const move = el("div", "move-row");
-    move.appendChild(el("span", "field-label", "In"));
+    const moveLbl = el("label", "field-label", "Category");
+    moveLbl.htmlFor = "move-" + item._key;
+    move.appendChild(moveLbl);
     const sel = el("select");
+    sel.id = "move-" + item._key;
     sel.className = "move-select";
-    sel.setAttribute("aria-label", "Category");
     fillCategoryOptions(sel, ci);
     sel.addEventListener("change", () => {
       const target = Number(sel.value);
@@ -834,31 +921,18 @@ function itemBlock(item, ci, ii) {
   /* Row of controls */
   const tools = el("div", "it-tools");
 
-  const saleTog = toggle("Sale", !!item.sale, on => {
+  const saleTog = toggle("On sale", !!item.sale, on => {
     item.sale = on ? { percentOff: 10, until: "" } : null;
     markDirty();
     renderEditor();
   });
-  const hideTog = toggle("Hide", !!item.hidden, on => {
+  const hideTog = toggle("Hidden", !!item.hidden, on => {
     item.hidden = on;
     markDirty();
     renderEditor();
   });
   tools.append(saleTog, hideTog);
 
-  if (!descOpen) {
-    const addDesc = el("button", "btn small", "Add description");
-    addDesc.type = "button";
-    addDesc.addEventListener("click", () => {
-      openDesc.add(item._key);
-      renderEditor();
-      const field = document.querySelector(`[data-err="desc-${item._key}"]`);
-      if (field) field.focus();
-    });
-    tools.appendChild(addDesc);
-  }
-
-  tools.appendChild(el("span", "grow"));
 
   const up = iconBtn("↑", "Move item up", () => moveItem(ci, ii, -1));
   const down = iconBtn("↓", "Move item down", () => moveItem(ci, ii, 1));
@@ -867,7 +941,7 @@ function itemBlock(item, ci, ii) {
 
   const del = el("button", "btn icon danger", "✕");
   del.type = "button";
-  del.setAttribute("aria-label", "Delete item");
+  del.setAttribute("aria-label", "Delete " + (item.name.trim() || "item"));
   del.addEventListener("click", () => {
     const what = item.name.trim() || "this item";
     if (!confirm(`Delete ${what}?`)) return;
@@ -876,7 +950,9 @@ function itemBlock(item, ci, ii) {
     renderEditor();
   });
 
-  tools.append(up, down, del);
+  const actions = el("span", "it-actions");
+  actions.append(up, down, del);
+  tools.appendChild(actions);
   box.appendChild(tools);
 
   return box;
@@ -1018,8 +1094,13 @@ function validate() {
   if (name === "") flagField("menuName", "The stand needs a name.", problems);
   else if (name.length > MAX_NAME) flagField("menuName", `Keep it to ${MAX_NAME} characters.`, problems);
 
-  if (menu.venmoUsername.trim() === "") {
+  const venmo = menu.venmoUsername.trim();
+  if (venmo === "") {
     flagField("venmoName", "A Venmo username is required, or nobody can pay.", problems);
+  } else if (venmo.startsWith("@")) {
+    flagField("venmoName", "Leave off the @. Venmo links break with it.", problems);
+  } else if (/\s/.test(venmo)) {
+    flagField("venmoName", "A Venmo username can't contain spaces.", problems);
   }
 
   /* PayPal is optional — empty simply hides the button. When it is filled in
@@ -1244,6 +1325,7 @@ $("saveBtn").addEventListener("click", async () => {
 
     baseline = payload;
     markClean();
+    setStatus("saved", "Saved");
     notice("ok", "Saved. The live page will show the change within about a minute.");
   } catch (err) {
     notice("bad", "Couldn't reach the server. Your edits are still here — try again in a moment.");
@@ -1292,11 +1374,11 @@ function renderPreview() {
       if (sale) {
         prices.appendChild(el("span", "pv-tag", sale.percentOff + "% OFF"));
         const line = el("span", "pv-price-line");
-        line.appendChild(el("span", "pv-price was", base.toFixed(2)));
-        line.appendChild(el("span", "pv-price", effectivePrice(item).toFixed(2)));
+        line.appendChild(el("span", "pv-price was", "$" + base.toFixed(2)));
+        line.appendChild(el("span", "pv-price", "$" + effectivePrice(item).toFixed(2)));
         prices.appendChild(line);
       } else {
-        prices.appendChild(el("span", "pv-price", base.toFixed(2)));
+        prices.appendChild(el("span", "pv-price", "$" + base.toFixed(2)));
       }
       row.appendChild(prices);
       section.appendChild(row);

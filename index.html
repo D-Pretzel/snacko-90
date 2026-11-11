@@ -24,11 +24,14 @@
     --bg:     #F3EFE5;
     --panel:  #FBF8F0;
     --ink:    #1A1C22;
-    --muted:  #7A7365;
+    --muted:  #6B6456;         /* 5.1:1 on --bg; was 4.1:1 */
     --rule:   #CFC8B7;
     --rule-2: #E6E1D2;
     --accent: #D96B4A;         /* warm coral - used for pay + minus hover */
     --accent-press: #B7532F;
+    /* --accent is a fill color; as small text it only reaches 3.2:1. This is
+       the same hue taken down to clear 4.5:1 on the cards. */
+    --accent-ink: #A8432A;
     --blue: #3A7BD5;           /* selection blue - active row + plus hover */
     --blue-tint: #E4EEFB;
     /* Search-hit highlight. Deliberately not --blue-tint: that is tuned to sit
@@ -52,7 +55,8 @@
       --bg:     #14161A;
       --panel:  #1D2026;
       --ink:    #EFE9DA;
-      --muted:  #8F8877;
+      --muted:  #9A9382;
+      --accent-ink: #E8866A;
       --rule:   #3B3E46;
       --rule-2: #292C33;
       --blue-tint: #172436;
@@ -182,8 +186,8 @@
   }
   .cat-title {
     font-family: 'IBM Plex Mono', ui-monospace, monospace;
-    font-size: 11px; font-weight: 500;
-    letter-spacing: .22em; text-transform: uppercase;
+    font-size: 12px; font-weight: 500;
+    letter-spacing: .18em; text-transform: uppercase;
     color: var(--muted);
   }
   .cat-rule { flex: 1 1 auto; height: 1px; background: var(--rule-2); }
@@ -194,8 +198,8 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto auto;
     align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
+    gap: 10px;
+    padding: 12px 12px 12px 14px;
     background: var(--panel);
     border: 1px solid var(--rule-2);
     border-radius: var(--radius);
@@ -218,13 +222,18 @@
     display: flex; align-items: baseline; gap: 8px;
     min-width: 0; overflow: hidden;
   }
+  /* Wraps rather than truncating. With the 44px stepper and a sale price
+     beside it, a phone leaves room for about eight characters, and "Ready…"
+     does not tell anyone which bar they are buying. */
   .name {
     font-size: 15.5px; font-weight: 550;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    overflow-wrap: break-word;
     flex: 0 1 auto;
   }
+  /* min-width 0: a long name takes the whole line and the leader gives way,
+     instead of the leader holding space open and squeezing the name. */
   .lead {
-    flex: 1 1 auto; height: 1px; min-width: 12px;
+    flex: 1 1 auto; height: 1px; min-width: 0;
     background-image: radial-gradient(circle, var(--rule) 1px, transparent 1.2px);
     background-size: 6px 2px; background-repeat: repeat-x;
     background-position: left center;
@@ -240,13 +249,15 @@
   /* Description - muted second line under the name */
   .name-block { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
   .desc {
-    font-size: 12.5px; color: var(--muted);
+    font-size: 13px; color: var(--muted);
     overflow: hidden; text-overflow: ellipsis;
   }
 
   /* Sale pricing - stacked so the tag never steals width from the item name */
   .price-block { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-  .price-line { display: flex; align-items: baseline; gap: 7px; }
+  /* Stacked, sale price on top: side by side the two prices took as much
+     width as the item name had left. */
+  .price-line { display: flex; flex-direction: column-reverse; align-items: flex-end; gap: 1px; }
   .price.was {
     color: var(--muted);
     text-decoration: line-through;
@@ -254,24 +265,28 @@
   }
   .sale-tag {
     font-family: 'IBM Plex Mono', ui-monospace, monospace;
-    font-size: 10px; font-weight: 500; letter-spacing: .08em;
-    color: var(--accent);
+    font-size: 11px; font-weight: 500; letter-spacing: .08em;
+    color: var(--accent-ink);
     white-space: nowrap;
   }
 
   /* Stepper - friendlier rounded, but still POS-clean */
-  .qty { display: flex; align-items: center; gap: 6px; }
+  .qty { display: flex; align-items: center; gap: 4px; }
+  /* 44px is the minimum comfortable tap target; this is the control people
+     hit most on the page, usually one-handed. */
   .qty button {
-    width: 38px; height: 38px; border-radius: 10px;
+    width: 44px; height: 44px; border-radius: 11px;
+    touch-action: manipulation;   /* no double-tap zoom eating a second tap */
     border: 1px solid var(--rule); background: var(--bg);
     color: var(--ink);
     font-family: 'IBM Plex Sans', sans-serif;
     font-size: 18px; font-weight: 500;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; padding: 0;
-    transition: background .15s ease, opacity .15s ease, border-color .15s ease;
+    transition: background .15s ease, opacity .15s ease, border-color .15s ease, transform .1s ease;
   }
   .qty button:hover { background: var(--panel); }
+  .qty button:active { transform: scale(.94); }
   .qty .plus:hover  { border-color: var(--blue); }
   .qty .minus:hover { border-color: var(--accent); }
   .qty .plus:focus-visible  { outline: 2px solid var(--blue);   outline-offset: 2px; }
@@ -280,7 +295,7 @@
     opacity: .35; pointer-events: none; border-color: var(--rule-2);
   }
   .qty .q-num {
-    min-width: 20px; text-align: center;
+    min-width: 22px; text-align: center;
     font-family: 'IBM Plex Mono', ui-monospace, monospace;
     font-size: 14px; font-weight: 500;
     font-variant-numeric: tabular-nums;
@@ -690,11 +705,11 @@
     if (sale) {
       priceBlock.appendChild(el("span", "sale-tag", sale.percentOff + "% OFF"));
       const line = el("span", "price-line");
-      line.appendChild(el("span", "price was", item.price.toFixed(2)));
-      line.appendChild(el("span", "price", entry.price.toFixed(2)));
+      line.appendChild(el("span", "price was", money(item.price)));
+      line.appendChild(el("span", "price", money(entry.price)));
       priceBlock.appendChild(line);
     } else {
-      priceBlock.appendChild(el("span", "price", entry.price.toFixed(2)));
+      priceBlock.appendChild(el("span", "price", money(entry.price)));
     }
     row.appendChild(priceBlock);
 
