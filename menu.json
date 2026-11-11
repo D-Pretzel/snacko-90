@@ -19,6 +19,10 @@
         {
           "name": "Celsius",
           "price": 2
+        },
+        {
+          "name": "Black Rifle Coffee",
+          "price": 2
         }
       ]
     },
