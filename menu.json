@@ -112,8 +112,9 @@
           "price": 1
         },
         {
-          "name": "Cookie",
-          "price": 0.5
+          "name": "Homemade Cookie",
+          "price": 0.5,
+          "hidden": true
         }
       ]
     }
