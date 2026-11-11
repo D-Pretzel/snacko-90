@@ -110,6 +110,10 @@
         {
           "name": "Pop Tart",
           "price": 1
+        },
+        {
+          "name": "Cookie",
+          "price": 0.5
         }
       ]
     }
