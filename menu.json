@@ -31,7 +31,8 @@
       "items": [
         {
           "name": "Water",
-          "price": 0.25
+          "price": 0.25,
+          "hidden": true
         },
         {
           "name": "Soda",
